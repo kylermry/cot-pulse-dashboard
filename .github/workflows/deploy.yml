@@ -15,10 +15,4 @@ jobs:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USER }}
         password: ${{ secrets.SSH_PASSWORD }}
-        script: |
-          cd /var/www/cotpulse/cot_dashboard_v5
-          git pull origin main
-          source /var/www/cotpulse/venv/bin/activate
-          pkill -f "reflex run" || true
-          sleep 3
-          nohup reflex run --env prod > /var/log/reflex.log 2>&1 &
+        script: /root/deploy.sh
