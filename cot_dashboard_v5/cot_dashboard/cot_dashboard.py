@@ -295,12 +295,23 @@ class State(rx.State):
     long_sparkline: List[int] = []
     short_sparkline: List[int] = []
 
+    # Authentication state
+    is_authenticated: bool = False
+    show_login_modal: bool = False
+    show_signup_modal: bool = False
+
     # Login state
     login_email: str = ""
     login_password: str = ""
     show_password: bool = False
     remember_me: bool = False
     login_error: str = ""
+
+    # Signup state
+    signup_email: str = ""
+    signup_password: str = ""
+    signup_confirm_password: str = ""
+    signup_error: str = ""
 
     # Premium / Subscription state
     is_premium_user: bool = False
@@ -437,6 +448,69 @@ class State(rx.State):
         if asset:
             self.select_asset(asset["category"], asset["symbol"], asset["name"])
         self.close_search_modal()
+
+    # Authentication methods
+    def open_login_modal(self):
+        """Open login modal."""
+        self.show_login_modal = True
+        self.show_signup_modal = False
+        self.login_error = ""
+
+    def close_login_modal(self):
+        """Close login modal."""
+        self.show_login_modal = False
+        self.login_email = ""
+        self.login_password = ""
+        self.login_error = ""
+
+    def open_signup_modal(self):
+        """Open signup modal."""
+        self.show_signup_modal = True
+        self.show_login_modal = False
+        self.signup_error = ""
+
+    def close_signup_modal(self):
+        """Close signup modal."""
+        self.show_signup_modal = False
+        self.signup_email = ""
+        self.signup_password = ""
+        self.signup_confirm_password = ""
+        self.signup_error = ""
+
+    def switch_to_signup(self):
+        """Switch from login to signup modal."""
+        self.close_login_modal()
+        self.open_signup_modal()
+
+    def switch_to_login(self):
+        """Switch from signup to login modal."""
+        self.close_signup_modal()
+        self.open_login_modal()
+
+    def handle_login(self):
+        """Handle login form submission."""
+        # For now, simulate login (you can add real auth later)
+        if self.login_email and self.login_password:
+            self.is_authenticated = True
+            self.close_login_modal()
+        else:
+            self.login_error = "Please enter email and password"
+
+    def handle_signup(self):
+        """Handle signup form submission."""
+        if not self.signup_email or not self.signup_password:
+            self.signup_error = "Please fill in all fields"
+            return
+        if self.signup_password != self.signup_confirm_password:
+            self.signup_error = "Passwords do not match"
+            return
+        # For now, simulate signup success
+        self.is_authenticated = True
+        self.close_signup_modal()
+
+    def handle_logout(self):
+        """Handle logout."""
+        self.is_authenticated = False
 
     # Report Type methods
     def set_report_type(self, report_type: str):
@@ -2355,25 +2429,72 @@ def terminal_header() -> rx.Component:
                     _hover={"background": "rgba(255,255,255,0.05)"},
                     display=["none", "flex", "flex", "flex"],  # Hide on smallest screens
                 ),
-                # User Avatar (logged in state)
-                rx.box(
-                    rx.hstack(
-                        rx.box(
-                            rx.text("K", font_size="12px", font_weight="600", color="white"),
-                            width="32px",
-                            height="32px",
-                            background="linear-gradient(135deg, #8b5cf6, #6366f1)",
-                            border_radius="50%",
-                            display="flex",
-                            align_items="center",
-                            justify_content="center",
+                # Auth section - conditional based on login state
+                rx.cond(
+                    State.is_authenticated,
+                    # Logged in: Show user avatar
+                    rx.box(
+                        rx.hstack(
+                            rx.box(
+                                rx.text("K", font_size="12px", font_weight="600", color="white"),
+                                width="32px",
+                                height="32px",
+                                background="linear-gradient(135deg, #8b5cf6, #6366f1)",
+                                border_radius="50%",
+                                display="flex",
+                                align_items="center",
+                                justify_content="center",
+                            ),
+                            rx.icon("chevron-down", size=14, color="#64748b"),
+                            spacing="1",
+                            align="center",
                         ),
-                        rx.icon("chevron-down", size=14, color="#64748b"),
-                        spacing="1",
-                        align="center",
+                        cursor="pointer",
+                        _hover={"opacity": "0.8"},
+                        on_click=State.handle_logout,
                     ),
-                    cursor="pointer",
-                    _hover={"opacity": "0.8"},
+                    # Not logged in: Show Login/Sign Up buttons
+                    rx.hstack(
+                        rx.button(
+                            "Login",
+                            padding_x="16px",
+                            padding_y="8px",
+                            border_radius="8px",
+                            background="transparent",
+                            color=themed("#374151", "#e2e8f0"),
+                            font_size="13px",
+                            font_weight="500",
+                            border="1px solid",
+                            border_color=themed("rgba(0,0,0,0.1)", "rgba(255,255,255,0.1)"),
+                            cursor="pointer",
+                            _hover={
+                                "background": themed("rgba(0,0,0,0.05)", "rgba(255,255,255,0.05)"),
+                                "border_color": themed("rgba(0,0,0,0.2)", "rgba(255,255,255,0.2)"),
+                            },
+                            on_click=State.open_login_modal,
+                        ),
+                        rx.button(
+                            "Sign Up",
+                            padding_x="16px",
+                            padding_y="8px",
+                            border_radius="8px",
+                            background="linear-gradient(135deg, #0ea5e9, #0284c7)",
+                            color="white",
+                            font_size="13px",
+                            font_weight="500",
+                            border="none",
+                            cursor="pointer",
+                            box_shadow="0 2px 8px rgba(14,165,233,0.3)",
+                            _hover={
+                                "transform": "translateY(-1px)",
+                                "box_shadow": "0 4px 12px rgba(14,165,233,0.4)",
+                            },
+                            on_click=State.open_signup_modal,
+                        ),
+                        spacing="2",
+                        align="center",
+                        display=["none", "flex", "flex", "flex"],  # Hide on smallest screens
+                    ),
                 ),
                 # Mobile menu icon - larger touch target (44px min)
                 rx.box(
@@ -3005,11 +3126,128 @@ def report_type_selector() -> rx.Component:
     )
 
 
+def auth_buttons_sidebar() -> rx.Component:
+    """Sign Up and Login buttons for unauthenticated users."""
+    return rx.vstack(
+        # Welcome text
+        rx.vstack(
+            rx.text(
+                "WELCOME",
+                font_size="11px",
+                font_weight="600",
+                color="#64748b",
+                letter_spacing="0.5px",
+            ),
+            rx.text(
+                "Sign in to access your portfolio and personalized insights.",
+                font_size="13px",
+                color="#9ca3af",
+                line_height="1.5",
+                margin_top="8px",
+            ),
+            spacing="0",
+            width="100%",
+            align="start",
+            margin_bottom="20px",
+        ),
+        # Login button
+        rx.button(
+            rx.hstack(
+                rx.icon("log-in", size=16),
+                rx.text("Login", font_weight="500"),
+                spacing="2",
+                align="center",
+            ),
+            width="100%",
+            padding="12px 16px",
+            border_radius="10px",
+            background="linear-gradient(135deg, #0ea5e9, #0284c7)",
+            color="white",
+            font_size="14px",
+            border="none",
+            cursor="pointer",
+            box_shadow="0 4px 12px rgba(14,165,233,0.3)",
+            _hover={"transform": "translateY(-1px)", "box_shadow": "0 6px 16px rgba(14,165,233,0.4)"},
+            on_click=State.open_login_modal,
+        ),
+        # Sign Up button
+        rx.button(
+            rx.hstack(
+                rx.icon("user-plus", size=16),
+                rx.text("Sign Up", font_weight="500"),
+                spacing="2",
+                align="center",
+            ),
+            width="100%",
+            padding="12px 16px",
+            border_radius="10px",
+            background="transparent",
+            color="#0ea5e9",
+            font_size="14px",
+            border="1px solid rgba(14,165,233,0.4)",
+            cursor="pointer",
+            _hover={"background": "rgba(14,165,233,0.1)", "border_color": "#0ea5e9"},
+            on_click=State.open_signup_modal,
+        ),
+        # Divider
+        rx.divider(
+            opacity="0.1",
+            margin_y="20px",
+        ),
+        # Feature highlights
+        rx.vstack(
+            rx.text(
+                "FREE FEATURES",
+                font_size="11px",
+                font_weight="600",
+                color="#64748b",
+                letter_spacing="0.5px",
+            ),
+            rx.vstack(
+                rx.hstack(
+                    rx.icon("check", size=14, color="#10b981"),
+                    rx.text("Real-time COT data", font_size="12px", color="#9ca3af"),
+                    spacing="2",
+                    align="center",
+                ),
+                rx.hstack(
+                    rx.icon("check", size=14, color="#10b981"),
+                    rx.text("8 Asset categories", font_size="12px", color="#9ca3af"),
+                    spacing="2",
+                    align="center",
+                ),
+                rx.hstack(
+                    rx.icon("check", size=14, color="#10b981"),
+                    rx.text("Interactive charts", font_size="12px", color="#9ca3af"),
+                    spacing="2",
+                    align="center",
+                ),
+                rx.hstack(
+                    rx.icon("check", size=14, color="#10b981"),
+                    rx.text("Positioning analysis", font_size="12px", color="#9ca3af"),
+                    spacing="2",
+                    align="center",
+                ),
+                spacing="2",
+                align="start",
+                width="100%",
+                margin_top="8px",
+            ),
+            spacing="2",
+            width="100%",
+            align="start",
+        ),
+        spacing="3",
+        width="100%",
+        align="start",
+    )
+
+
 def left_sidebar() -> rx.Component:
     """Left sidebar with report types, asset navigation, and watchlist."""
     return rx.box(
         rx.vstack(
-            # Report Type Section
+            # Report Type Section - always visible
             rx.vstack(
                 rx.text(
                     "REPORT TYPE",
@@ -3028,7 +3266,7 @@ def left_sidebar() -> rx.Component:
                 opacity="0.1",
                 margin_y="12px",
             ),
-            # Asset Categories Section - Dynamic based on report type
+            # Asset Categories Section - always visible
             rx.vstack(
                 rx.text(
                     "ASSET CATEGORIES",
@@ -3098,7 +3336,7 @@ def left_sidebar() -> rx.Component:
                 align="start",
                 flex="1",
             ),
-            # Watchlist
+            # Watchlist - always visible
             rx.box(
                 watchlist_sidebar(),
                 width="100%",
@@ -5629,40 +5867,6 @@ def dashboard_header_section() -> rx.Component:
                 align="start",
             ),
             rx.spacer(),
-            # CENTER: Stat Pills (hidden on mobile)
-            rx.hstack(
-                # Data Fresh pill
-                header_stat_pill(
-                    icon="circle-check",
-                    icon_color="#10B981",
-                    label="Data Fresh",
-                    value=State.report_date_formatted,
-                ),
-                # L/S Ratio pill
-                header_stat_pill(
-                    icon="scale",
-                    icon_color="#8B5CF6",
-                    label="L/S Ratio",
-                    value=State.long_short_ratio,
-                ),
-                # WoW Change pill
-                header_stat_pill(
-                    icon="trending-up",
-                    icon_color="#60A5FA",
-                    label="WoW Change",
-                    value=State.oi_change_display,
-                ),
-                # Open Interest pill
-                header_stat_pill(
-                    icon="bar-chart-2",
-                    icon_color="#10B981",
-                    label="Open Interest",
-                    value=State.oi_display,
-                ),
-                spacing="3",
-                align="center",
-                display=["none", "none", "none", "flex"],  # Only on wide screens
-            ),
             # RIGHT: Actions
             rx.hstack(
                 # Markets status badge
@@ -6977,6 +7181,402 @@ def search_modal() -> rx.Component:
     )
 
 
+def login_modal() -> rx.Component:
+    """Login modal for authentication."""
+    return rx.cond(
+        State.show_login_modal,
+        rx.box(
+            # Backdrop
+            rx.box(
+                position="fixed",
+                top="0",
+                left="0",
+                right="0",
+                bottom="0",
+                background="rgba(0, 0, 0, 0.85)",
+                backdrop_filter="blur(12px)",
+                z_index="998",
+                on_click=State.close_login_modal,
+            ),
+            # Modal content
+            rx.box(
+                rx.vstack(
+                    # Logo
+                    rx.box(
+                        rx.text(
+                            "COT PULSE",
+                            font_size="18px",
+                            font_weight="700",
+                            color="white",
+                        ),
+                        padding_x="16px",
+                        padding_y="8px",
+                        background="linear-gradient(135deg, #0ea5e9, #0284c7)",
+                        border_radius="8px",
+                        margin_bottom="20px",
+                    ),
+                    # Header
+                    rx.text(
+                        "Welcome back",
+                        font_size="22px",
+                        font_weight="600",
+                        color="#e5e7eb",
+                    ),
+                    rx.text(
+                        "Sign in to Cot Pulse",
+                        font_size="14px",
+                        color="#9ca3af",
+                        margin_bottom="24px",
+                    ),
+                    # Error message
+                    rx.cond(
+                        State.login_error != "",
+                        rx.box(
+                            rx.text(
+                                State.login_error,
+                                font_size="13px",
+                                color="#ef4444",
+                            ),
+                            padding="12px",
+                            background="rgba(239, 68, 68, 0.1)",
+                            border="1px solid rgba(239, 68, 68, 0.3)",
+                            border_radius="8px",
+                            width="100%",
+                            margin_bottom="16px",
+                        ),
+                        rx.fragment(),
+                    ),
+                    # Email field
+                    rx.vstack(
+                        rx.text("Email", font_size="13px", color="#9ca3af"),
+                        rx.input(
+                            placeholder="you@institution.com",
+                            value=State.login_email,
+                            on_change=State.set_login_email,
+                            width="100%",
+                            padding="12px 14px",
+                            background="rgba(255,255,255,0.03)",
+                            border="1px solid rgba(255,255,255,0.06)",
+                            border_radius="10px",
+                            color="#e5e7eb",
+                            _placeholder={"color": "#6b7280"},
+                            _focus={
+                                "border_color": "#0ea5e9",
+                                "box_shadow": "0 0 0 1px rgba(14,165,233,0.4)",
+                            },
+                        ),
+                        spacing="1",
+                        align="start",
+                        width="100%",
+                        margin_bottom="16px",
+                    ),
+                    # Password field
+                    rx.vstack(
+                        rx.text("Password", font_size="13px", color="#9ca3af"),
+                        rx.input(
+                            placeholder="••••••••",
+                            type="password",
+                            value=State.login_password,
+                            on_change=State.set_login_password,
+                            width="100%",
+                            padding="12px 14px",
+                            background="rgba(255,255,255,0.03)",
+                            border="1px solid rgba(255,255,255,0.06)",
+                            border_radius="10px",
+                            color="#e5e7eb",
+                            _placeholder={"color": "#6b7280"},
+                            _focus={
+                                "border_color": "#0ea5e9",
+                                "box_shadow": "0 0 0 1px rgba(14,165,233,0.4)",
+                            },
+                        ),
+                        spacing="1",
+                        align="start",
+                        width="100%",
+                        margin_bottom="16px",
+                    ),
+                    # Remember me & forgot password
+                    rx.hstack(
+                        rx.hstack(
+                            rx.checkbox(
+                                checked=State.remember_me,
+                                on_change=State.set_remember_me,
+                            ),
+                            rx.text("Remember me", font_size="13px", color="#9ca3af"),
+                            spacing="2",
+                            align="center",
+                            cursor="pointer",
+                        ),
+                        rx.spacer(),
+                        rx.text(
+                            "Forgot password?",
+                            font_size="13px",
+                            color="#0ea5e9",
+                            cursor="pointer",
+                            _hover={"text_decoration": "underline"},
+                        ),
+                        width="100%",
+                        margin_bottom="20px",
+                    ),
+                    # Sign in button
+                    rx.button(
+                        "Sign In",
+                        width="100%",
+                        padding="14px",
+                        border_radius="12px",
+                        background="linear-gradient(135deg, #0ea5e9, #0284c7)",
+                        color="white",
+                        font_weight="600",
+                        font_size="14px",
+                        border="none",
+                        cursor="pointer",
+                        box_shadow="0 10px 30px rgba(14,165,233,0.35)",
+                        _hover={"transform": "translateY(-1px)"},
+                        on_click=State.handle_login,
+                    ),
+                    # Footer
+                    rx.hstack(
+                        rx.text("Don't have access?", font_size="13px", color="#9ca3af"),
+                        rx.text(
+                            "Request an invite",
+                            font_size="13px",
+                            color="#0ea5e9",
+                            cursor="pointer",
+                            _hover={"text_decoration": "underline"},
+                            on_click=State.switch_to_signup,
+                        ),
+                        spacing="2",
+                        justify="center",
+                        margin_top="22px",
+                    ),
+                    spacing="0",
+                    width="100%",
+                    align="center",
+                ),
+                position="fixed",
+                top="50%",
+                left="50%",
+                transform="translate(-50%, -50%)",
+                width=["95%", "90%", "420px", "420px"],
+                max_width="420px",
+                padding="36px",
+                background="linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))",
+                border="1px solid rgba(255,255,255,0.06)",
+                border_radius="16px",
+                backdrop_filter="blur(12px)",
+                box_shadow="0 20px 60px rgba(0,0,0,0.6)",
+                z_index="999",
+            ),
+            position="fixed",
+            top="0",
+            left="0",
+            right="0",
+            bottom="0",
+            z_index="997",
+        ),
+        rx.fragment(),
+    )
+
+
+def signup_modal() -> rx.Component:
+    """Signup modal for new users."""
+    return rx.cond(
+        State.show_signup_modal,
+        rx.box(
+            # Backdrop
+            rx.box(
+                position="fixed",
+                top="0",
+                left="0",
+                right="0",
+                bottom="0",
+                background="rgba(0, 0, 0, 0.85)",
+                backdrop_filter="blur(12px)",
+                z_index="998",
+                on_click=State.close_signup_modal,
+            ),
+            # Modal content
+            rx.box(
+                rx.vstack(
+                    # Logo
+                    rx.box(
+                        rx.text(
+                            "COT PULSE",
+                            font_size="18px",
+                            font_weight="700",
+                            color="white",
+                        ),
+                        padding_x="16px",
+                        padding_y="8px",
+                        background="linear-gradient(135deg, #0ea5e9, #0284c7)",
+                        border_radius="8px",
+                        margin_bottom="20px",
+                    ),
+                    # Header
+                    rx.text(
+                        "Create an account",
+                        font_size="22px",
+                        font_weight="600",
+                        color="#e5e7eb",
+                    ),
+                    rx.text(
+                        "Join Cot Pulse today",
+                        font_size="14px",
+                        color="#9ca3af",
+                        margin_bottom="24px",
+                    ),
+                    # Error message
+                    rx.cond(
+                        State.signup_error != "",
+                        rx.box(
+                            rx.text(
+                                State.signup_error,
+                                font_size="13px",
+                                color="#ef4444",
+                            ),
+                            padding="12px",
+                            background="rgba(239, 68, 68, 0.1)",
+                            border="1px solid rgba(239, 68, 68, 0.3)",
+                            border_radius="8px",
+                            width="100%",
+                            margin_bottom="16px",
+                        ),
+                        rx.fragment(),
+                    ),
+                    # Email field
+                    rx.vstack(
+                        rx.text("Email", font_size="13px", color="#9ca3af"),
+                        rx.input(
+                            placeholder="you@institution.com",
+                            value=State.signup_email,
+                            on_change=State.set_signup_email,
+                            width="100%",
+                            padding="12px 14px",
+                            background="rgba(255,255,255,0.03)",
+                            border="1px solid rgba(255,255,255,0.06)",
+                            border_radius="10px",
+                            color="#e5e7eb",
+                            _placeholder={"color": "#6b7280"},
+                            _focus={
+                                "border_color": "#0ea5e9",
+                                "box_shadow": "0 0 0 1px rgba(14,165,233,0.4)",
+                            },
+                        ),
+                        spacing="1",
+                        align="start",
+                        width="100%",
+                        margin_bottom="16px",
+                    ),
+                    # Password field
+                    rx.vstack(
+                        rx.text("Password", font_size="13px", color="#9ca3af"),
+                        rx.input(
+                            placeholder="••••••••",
+                            type="password",
+                            value=State.signup_password,
+                            on_change=State.set_signup_password,
+                            width="100%",
+                            padding="12px 14px",
+                            background="rgba(255,255,255,0.03)",
+                            border="1px solid rgba(255,255,255,0.06)",
+                            border_radius="10px",
+                            color="#e5e7eb",
+                            _placeholder={"color": "#6b7280"},
+                            _focus={
+                                "border_color": "#0ea5e9",
+                                "box_shadow": "0 0 0 1px rgba(14,165,233,0.4)",
+                            },
+                        ),
+                        spacing="1",
+                        align="start",
+                        width="100%",
+                        margin_bottom="16px",
+                    ),
+                    # Confirm Password field
+                    rx.vstack(
+                        rx.text("Confirm Password", font_size="13px", color="#9ca3af"),
+                        rx.input(
+                            placeholder="••••••••",
+                            type="password",
+                            value=State.signup_confirm_password,
+                            on_change=State.set_signup_confirm_password,
+                            width="100%",
+                            padding="12px 14px",
+                            background="rgba(255,255,255,0.03)",
+                            border="1px solid rgba(255,255,255,0.06)",
+                            border_radius="10px",
+                            color="#e5e7eb",
+                            _placeholder={"color": "#6b7280"},
+                            _focus={
+                                "border_color": "#0ea5e9",
+                                "box_shadow": "0 0 0 1px rgba(14,165,233,0.4)",
+                            },
+                        ),
+                        spacing="1",
+                        align="start",
+                        width="100%",
+                        margin_bottom="20px",
+                    ),
+                    # Sign up button
+                    rx.button(
+                        "Create Account",
+                        width="100%",
+                        padding="14px",
+                        border_radius="12px",
+                        background="linear-gradient(135deg, #0ea5e9, #0284c7)",
+                        color="white",
+                        font_weight="600",
+                        font_size="14px",
+                        border="none",
+                        cursor="pointer",
+                        box_shadow="0 10px 30px rgba(14,165,233,0.35)",
+                        _hover={"transform": "translateY(-1px)"},
+                        on_click=State.handle_signup,
+                    ),
+                    # Footer
+                    rx.hstack(
+                        rx.text("Already have an account?", font_size="13px", color="#9ca3af"),
+                        rx.text(
+                            "Sign in",
+                            font_size="13px",
+                            color="#0ea5e9",
+                            cursor="pointer",
+                            _hover={"text_decoration": "underline"},
+                            on_click=State.switch_to_login,
+                        ),
+                        spacing="2",
+                        justify="center",
+                        margin_top="22px",
+                    ),
+                    spacing="0",
+                    width="100%",
+                    align="center",
+                ),
+                position="fixed",
+                top="50%",
+                left="50%",
+                transform="translate(-50%, -50%)",
+                width=["95%", "90%", "420px", "420px"],
+                max_width="420px",
+                padding="36px",
+                background="linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))",
+                border="1px solid rgba(255,255,255,0.06)",
+                border_radius="16px",
+                backdrop_filter="blur(12px)",
+                box_shadow="0 20px 60px rgba(0,0,0,0.6)",
+                z_index="999",
+            ),
+            position="fixed",
+            top="0",
+            left="0",
+            right="0",
+            bottom="0",
+            z_index="997",
+        ),
+        rx.fragment(),
+    )
+
+
 # ============================================================================
 # LOGIN PAGE - Stunning design with animated world map background
 # ============================================================================
@@ -7106,10 +7706,20 @@ def social_login_button(icon_name: str, provider: str, on_click) -> rx.Component
 
 
 def login_page() -> rx.Component:
-    """Stunning login page with animated world map background."""
+    """Exact recreation of Cot Pulse login page per specification."""
     return rx.box(
-        # ===== Background Layers =====
-        # World map background
+        # ===== Background Effects =====
+        # Base: Deep black to dark navy gradient
+        rx.box(
+            position="absolute",
+            top="0",
+            left="0",
+            right="0",
+            bottom="0",
+            background="linear-gradient(180deg, #000000 0%, #0a0e27 100%)",
+            z_index="0",
+        ),
+        # World map background (subtle)
         rx.box(
             position="absolute",
             top="0",
@@ -7120,144 +7730,217 @@ def login_page() -> rx.Component:
             background_size="cover",
             background_position="center",
             background_repeat="no-repeat",
-            opacity="0.35",
-            style={
-                "animation": "pulseMap 8s ease-in-out infinite",
-            },
-            z_index="0",
-        ),
-        # Gradient overlay
-        rx.box(
-            position="absolute",
-            top="0",
-            left="0",
-            right="0",
-            bottom="0",
-            background="radial-gradient(ellipse at center, transparent 0%, rgba(10, 14, 39, 0.7) 70%, rgba(10, 14, 39, 0.95) 100%)",
+            opacity="0.08",
             z_index="1",
         ),
-        # Grid lines overlay
+        # Subtle radial blue glow (top center)
         rx.box(
             position="absolute",
-            top="0",
-            left="0",
-            right="0",
-            bottom="0",
-            opacity="0.03",
-            background_image="linear-gradient(rgba(96, 165, 250, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(96, 165, 250, 0.3) 1px, transparent 1px)",
-            background_size="50px 50px",
+            top="-30%",
+            left="50%",
+            transform="translateX(-50%)",
+            width="100%",
+            height="80%",
+            background="radial-gradient(ellipse at center, rgba(30, 100, 200, 0.08) 0%, transparent 60%)",
             z_index="2",
         ),
-        # Floating particles
+        # Bottom atmospheric glow
         rx.box(
-            floating_particle("0s", "120px", "10%", "#10b981"),
-            floating_particle("5s", "80px", "25%", "#8b5cf6"),
-            floating_particle("10s", "100px", "60%", "#60a5fa"),
-            floating_particle("15s", "60px", "80%", "#10b981"),
-            floating_particle("8s", "90px", "45%", "#8b5cf6"),
             position="absolute",
-            top="0",
-            left="0",
-            right="0",
             bottom="0",
-            overflow="hidden",
-            pointer_events="none",
-            z_index="3",
+            left="50%",
+            transform="translateX(-50%)",
+            width="100%",
+            height="300px",
+            background="radial-gradient(ellipse at bottom, rgba(30, 100, 200, 0.15) 0%, transparent 70%)",
+            z_index="2",
+        ),
+        # Scattered star dots effect (pseudo via multiple small gradients)
+        rx.box(
+            position="absolute",
+            top="10%",
+            left="15%",
+            width="3px",
+            height="3px",
+            background="white",
+            border_radius="50%",
+            opacity="0.4",
+            z_index="2",
+        ),
+        rx.box(
+            position="absolute",
+            top="25%",
+            right="20%",
+            width="2px",
+            height="2px",
+            background="white",
+            border_radius="50%",
+            opacity="0.3",
+            z_index="2",
+        ),
+        rx.box(
+            position="absolute",
+            top="60%",
+            left="10%",
+            width="2px",
+            height="2px",
+            background="white",
+            border_radius="50%",
+            opacity="0.25",
+            z_index="2",
+        ),
+        rx.box(
+            position="absolute",
+            top="40%",
+            right="8%",
+            width="3px",
+            height="3px",
+            background="white",
+            border_radius="50%",
+            opacity="0.35",
+            z_index="2",
+        ),
+        rx.box(
+            position="absolute",
+            top="75%",
+            right="25%",
+            width="2px",
+            height="2px",
+            background="white",
+            border_radius="50%",
+            opacity="0.3",
+            z_index="2",
         ),
         # ===== Login Card =====
         rx.box(
             rx.vstack(
-                # Logo
+                # Logo with glow effect
                 rx.box(
                     rx.image(
-                        src="/cot_pulse_logo.png",
-                        max_width="280px",
+                        src="/pulse (3).png",
+                        width="200px",
                         height="auto",
-                        style={
-                            "animation": "floatLogo 3s ease-in-out infinite",
-                        },
                     ),
-                    margin_bottom="8px",
-                ),
-                # Tagline
-                rx.text(
-                    "Track Market Sentiment in Real-Time",
-                    font_size="14px",
-                    color="#64748b",
+                    filter="drop-shadow(0 0 20px rgba(100, 200, 255, 0.5))",
                     margin_bottom="24px",
                 ),
                 # Welcome header
                 rx.text(
-                    "Welcome Back",
-                    font_size="28px",
-                    font_weight="700",
-                    background="linear-gradient(135deg, #60a5fa 0%, #8b5cf6 100%)",
-                    background_clip="text",
-                    style={"-webkit-background-clip": "text", "-webkit-text-fill-color": "transparent"},
+                    "Welcome back",
+                    font_size="32px",
+                    font_weight="600",
+                    color="#FFFFFF",
                     margin_bottom="8px",
+                    text_align="center",
                 ),
-                # Sign up link
-                rx.hstack(
+                # Subtitle
+                rx.text(
+                    "Sign in to Cot Pulse",
+                    font_size="16px",
+                    font_weight="400",
+                    color="rgba(255, 255, 255, 0.6)",
+                    margin_bottom="40px",
+                    text_align="center",
+                ),
+                # Email field
+                rx.vstack(
                     rx.text(
-                        "Don't have an account?",
-                        font_size="14px",
-                        color="#64748b",
-                    ),
-                    rx.link(
-                        "Sign up",
-                        href="/signup",
+                        "Email",
                         font_size="14px",
                         font_weight="500",
-                        color="#60a5fa",
-                        _hover={"color": "#8b5cf6", "text_decoration": "underline"},
+                        color="rgba(255, 255, 255, 0.9)",
+                        margin_bottom="8px",
+                        text_align="left",
+                        width="100%",
                     ),
-                    spacing="2",
-                    margin_bottom="28px",
+                    rx.input(
+                        placeholder="you@institution.com",
+                        value=State.login_email,
+                        on_change=State.set_login_email,
+                        width="100%",
+                        padding="14px 16px",
+                        background="rgba(255, 255, 255, 0.05)",
+                        border="1px solid rgba(255, 255, 255, 0.1)",
+                        border_radius="8px",
+                        color="rgba(255, 255, 255, 0.9)",
+                        font_size="15px",
+                        _placeholder={"color": "rgba(255, 255, 255, 0.4)"},
+                        _focus={
+                            "border_color": "rgba(100, 180, 255, 0.6)",
+                            "background": "rgba(255, 255, 255, 0.08)",
+                            "box_shadow": "0 0 0 3px rgba(100, 180, 255, 0.1)",
+                            "outline": "none",
+                        },
+                        transition="all 0.3s ease",
+                    ),
+                    spacing="0",
+                    align="start",
+                    width="100%",
+                    margin_bottom="20px",
                 ),
-                # Email input
-                login_input_field(
-                    "Email",
-                    "Enter your email",
-                    "email",
-                    State.login_email,
-                    State.set_login_email,
-                ),
-                rx.box(height="16px"),
-                # Password input
-                login_input_field(
-                    "Password",
-                    "Enter your password",
-                    "password",
-                    State.login_password,
-                    State.set_login_password,
-                    show_toggle=True,
+                # Password field
+                rx.vstack(
+                    rx.text(
+                        "Password",
+                        font_size="14px",
+                        font_weight="500",
+                        color="rgba(255, 255, 255, 0.9)",
+                        margin_bottom="8px",
+                        text_align="left",
+                        width="100%",
+                    ),
+                    rx.input(
+                        placeholder="••••••••",
+                        type="password",
+                        value=State.login_password,
+                        on_change=State.set_login_password,
+                        width="100%",
+                        padding="14px 16px",
+                        background="rgba(255, 255, 255, 0.05)",
+                        border="1px solid rgba(255, 255, 255, 0.1)",
+                        border_radius="8px",
+                        color="rgba(255, 255, 255, 0.9)",
+                        font_size="15px",
+                        _placeholder={"color": "rgba(255, 255, 255, 0.4)"},
+                        _focus={
+                            "border_color": "rgba(100, 180, 255, 0.6)",
+                            "background": "rgba(255, 255, 255, 0.08)",
+                            "box_shadow": "0 0 0 3px rgba(100, 180, 255, 0.1)",
+                            "outline": "none",
+                        },
+                        transition="all 0.3s ease",
+                    ),
+                    spacing="0",
+                    align="start",
+                    width="100%",
+                    margin_bottom="20px",
                 ),
                 # Error message
                 rx.cond(
                     State.login_error != "",
-                    rx.text(
-                        State.login_error,
-                        font_size="13px",
-                        color="#ef4444",
-                        margin_top="8px",
+                    rx.box(
+                        rx.text(State.login_error, font_size="13px", color="#ef4444"),
+                        padding="12px",
+                        background="rgba(239, 68, 68, 0.1)",
+                        border="1px solid rgba(239, 68, 68, 0.2)",
+                        border_radius="8px",
+                        width="100%",
+                        margin_bottom="16px",
                     ),
                     rx.fragment(),
                 ),
-                rx.box(height="12px"),
                 # Remember me + Forgot password row
                 rx.hstack(
                     rx.hstack(
                         rx.checkbox(
                             checked=State.remember_me,
-                            on_change=lambda _: State.toggle_remember_me(),
+                            on_change=State.set_remember_me,
                             color_scheme="blue",
                         ),
                         rx.text(
                             "Remember me",
-                            font_size="13px",
-                            color="#94a3b8",
-                            cursor="pointer",
-                            on_click=State.toggle_remember_me,
+                            font_size="14px",
+                            color="rgba(255, 255, 255, 0.8)",
                         ),
                         spacing="2",
                         align="center",
@@ -7265,120 +7948,308 @@ def login_page() -> rx.Component:
                     rx.spacer(),
                     rx.link(
                         "Forgot password?",
-                        href="/forgot-password",
-                        font_size="13px",
-                        color="#60a5fa",
-                        _hover={"color": "#8b5cf6"},
+                        href="#",
+                        font_size="14px",
+                        color="#4A9EFF",
+                        _hover={"color": "#6BB3FF", "text_decoration": "none"},
+                        text_decoration="none",
                     ),
                     width="100%",
                     align="center",
+                    margin_bottom="24px",
                 ),
-                rx.box(height="24px"),
-                # Login button
-                rx.box(
-                    rx.text(
-                        "Sign In",
-                        font_size="15px",
-                        font_weight="600",
-                        color="white",
-                    ),
+                # Sign In button
+                rx.button(
+                    "Sign In",
                     width="100%",
                     padding="16px",
-                    background="linear-gradient(135deg, #60a5fa 0%, #8b5cf6 100%)",
-                    border_radius="12px",
-                    text_align="center",
+                    border_radius="8px",
+                    background="linear-gradient(90deg, #2563EB 0%, #3B82F6 100%)",
+                    color="#FFFFFF",
+                    font_size="16px",
+                    font_weight="600",
+                    border="none",
                     cursor="pointer",
-                    box_shadow="0 4px 15px rgba(96, 165, 250, 0.35)",
+                    box_shadow="0 4px 15px rgba(37, 99, 235, 0.4)",
                     transition="all 0.3s ease",
                     _hover={
                         "transform": "translateY(-2px)",
-                        "box_shadow": "0 8px 25px rgba(96, 165, 250, 0.45)",
+                        "box_shadow": "0 6px 20px rgba(37, 99, 235, 0.6)",
+                        "filter": "brightness(110%)",
+                    },
+                    _active={
+                        "transform": "translateY(0)",
                     },
                     on_click=State.handle_login,
+                    margin_bottom="24px",
                 ),
-                rx.box(height="24px"),
-                # Divider
+                # Footer text
                 rx.hstack(
-                    rx.box(
-                        height="1px",
-                        flex="1",
-                        background="rgba(96, 165, 250, 0.2)",
-                    ),
                     rx.text(
-                        "Or continue with",
-                        font_size="13px",
-                        color="#64748b",
-                        padding_x="16px",
+                        "Don't have access?",
+                        font_size="14px",
+                        color="rgba(255, 255, 255, 0.6)",
                     ),
-                    rx.box(
-                        height="1px",
-                        flex="1",
-                        background="rgba(96, 165, 250, 0.2)",
-                    ),
-                    width="100%",
-                    align="center",
-                ),
-                rx.box(height="20px"),
-                # Social login buttons
-                rx.hstack(
-                    social_login_button("chrome", "Google", State.handle_google_login),
-                    social_login_button("apple", "Apple", State.handle_apple_login),
-                    spacing="3",
-                    width="100%",
-                ),
-                rx.box(height="24px"),
-                # Terms and Privacy
-                rx.hstack(
                     rx.link(
-                        "Terms of Service",
-                        href="/terms",
-                        font_size="12px",
-                        color="#64748b",
-                        _hover={"color": "#94a3b8"},
+                        "Request an invite",
+                        href="/signup",
+                        font_size="14px",
+                        color="#4A9EFF",
+                        _hover={"color": "#6BB3FF"},
+                        text_decoration="none",
                     ),
-                    rx.text("•", color="#4a5568", font_size="12px"),
-                    rx.link(
-                        "Privacy Policy",
-                        href="/privacy",
-                        font_size="12px",
-                        color="#64748b",
-                        _hover={"color": "#94a3b8"},
-                    ),
-                    spacing="3",
+                    spacing="2",
                     justify="center",
                 ),
                 spacing="0",
                 width="100%",
                 align="center",
             ),
-            width=["90%", "90%", "480px", "480px"],
+            # Card styling - glassmorphism
+            width=["92%", "90%", "480px", "480px"],
             max_width="480px",
-            padding=["32px", "40px", "48px", "48px"],
-            background="rgba(10, 14, 39, 0.85)",
-            backdrop_filter="blur(30px)",
-            border="1px solid rgba(96, 165, 250, 0.2)",
+            padding=["32px 24px", "40px", "48px 40px", "48px 40px"],
+            background="rgba(10, 20, 40, 0.6)",
+            backdrop_filter="blur(20px)",
+            border="1px solid rgba(70, 130, 255, 0.3)",
             border_radius="24px",
-            box_shadow="0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(96, 165, 250, 0.1)",
+            box_shadow="0 8px 32px rgba(0, 100, 255, 0.15), 0 0 80px rgba(0, 150, 255, 0.1)",
             position="relative",
             z_index="10",
-            style={
-                "animation": "slideUp 0.6s ease-out",
-            },
-            _hover={
-                "border_color": "rgba(96, 165, 250, 0.35)",
-                "box_shadow": "0 25px 60px -12px rgba(0, 0, 0, 0.6), 0 0 50px rgba(96, 165, 250, 0.15)",
-            },
         ),
         # Container
         width="100%",
         min_height="100vh",
-        background="#0a0e27",
         display="flex",
         align_items="center",
         justify_content="center",
         position="relative",
         overflow="hidden",
-        font_family="'Inter', -apple-system, sans-serif",
+        font_family="'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+    )
+
+
+def signup_page() -> rx.Component:
+    """Exact recreation of Cot Pulse signup page per specification."""
+    return rx.box(
+        # ===== Background Effects =====
+        # Base: Deep black to dark navy gradient
+        rx.box(
+            position="absolute",
+            top="0",
+            left="0",
+            right="0",
+            bottom="0",
+            background="linear-gradient(180deg, #000000 0%, #0a0e27 100%)",
+            z_index="0",
+        ),
+        # World map background (subtle)
+        rx.box(
+            position="absolute",
+            top="0",
+            left="0",
+            right="0",
+            bottom="0",
+            background_image="url('/world_map.png')",
+            background_size="cover",
+            background_position="center",
+            background_repeat="no-repeat",
+            opacity="0.08",
+            z_index="1",
+        ),
+        # Subtle radial blue glow (top center)
+        rx.box(
+            position="absolute",
+            top="-30%",
+            left="50%",
+            transform="translateX(-50%)",
+            width="100%",
+            height="80%",
+            background="radial-gradient(ellipse at center, rgba(30, 100, 200, 0.08) 0%, transparent 60%)",
+            z_index="2",
+        ),
+        # Bottom atmospheric glow
+        rx.box(
+            position="absolute",
+            bottom="0",
+            left="50%",
+            transform="translateX(-50%)",
+            width="100%",
+            height="300px",
+            background="radial-gradient(ellipse at bottom, rgba(30, 100, 200, 0.15) 0%, transparent 70%)",
+            z_index="2",
+        ),
+        # Star dots
+        rx.box(position="absolute", top="10%", left="15%", width="3px", height="3px", background="white", border_radius="50%", opacity="0.4", z_index="3"),
+        rx.box(position="absolute", top="25%", right="20%", width="2px", height="2px", background="white", border_radius="50%", opacity="0.3", z_index="3"),
+        rx.box(position="absolute", top="60%", left="10%", width="2px", height="2px", background="white", border_radius="50%", opacity="0.25", z_index="3"),
+        rx.box(position="absolute", top="40%", right="8%", width="3px", height="3px", background="white", border_radius="50%", opacity="0.35", z_index="3"),
+        # ===== Signup Card =====
+        rx.box(
+            rx.vstack(
+                # Logo with glow effect
+                rx.box(
+                    rx.image(
+                        src="/pulse (3).png",
+                        width="200px",
+                        height="auto",
+                    ),
+                    filter="drop-shadow(0 0 20px rgba(100, 200, 255, 0.5))",
+                    margin_bottom="24px",
+                ),
+                # Header
+                rx.text(
+                    "Create an account",
+                    font_size="32px",
+                    font_weight="600",
+                    color="#FFFFFF",
+                    margin_bottom="8px",
+                    text_align="center",
+                ),
+                rx.text(
+                    "Join Cot Pulse today",
+                    font_size="16px",
+                    font_weight="400",
+                    color="rgba(255, 255, 255, 0.6)",
+                    margin_bottom="40px",
+                    text_align="center",
+                ),
+                # Email field
+                rx.vstack(
+                    rx.text("Email", font_size="14px", font_weight="500", color="rgba(255, 255, 255, 0.9)", margin_bottom="8px", text_align="left", width="100%"),
+                    rx.input(
+                        placeholder="you@institution.com",
+                        value=State.signup_email,
+                        on_change=State.set_signup_email,
+                        width="100%",
+                        padding="14px 16px",
+                        background="rgba(255, 255, 255, 0.05)",
+                        border="1px solid rgba(255, 255, 255, 0.1)",
+                        border_radius="8px",
+                        color="rgba(255, 255, 255, 0.9)",
+                        font_size="15px",
+                        _placeholder={"color": "rgba(255, 255, 255, 0.4)"},
+                        _focus={"border_color": "rgba(100, 180, 255, 0.6)", "background": "rgba(255, 255, 255, 0.08)", "box_shadow": "0 0 0 3px rgba(100, 180, 255, 0.1)", "outline": "none"},
+                        transition="all 0.3s ease",
+                    ),
+                    spacing="0",
+                    align="start",
+                    width="100%",
+                    margin_bottom="20px",
+                ),
+                # Password field
+                rx.vstack(
+                    rx.text("Password", font_size="14px", font_weight="500", color="rgba(255, 255, 255, 0.9)", margin_bottom="8px", text_align="left", width="100%"),
+                    rx.input(
+                        placeholder="••••••••",
+                        type="password",
+                        value=State.signup_password,
+                        on_change=State.set_signup_password,
+                        width="100%",
+                        padding="14px 16px",
+                        background="rgba(255, 255, 255, 0.05)",
+                        border="1px solid rgba(255, 255, 255, 0.1)",
+                        border_radius="8px",
+                        color="rgba(255, 255, 255, 0.9)",
+                        font_size="15px",
+                        _placeholder={"color": "rgba(255, 255, 255, 0.4)"},
+                        _focus={"border_color": "rgba(100, 180, 255, 0.6)", "background": "rgba(255, 255, 255, 0.08)", "box_shadow": "0 0 0 3px rgba(100, 180, 255, 0.1)", "outline": "none"},
+                        transition="all 0.3s ease",
+                    ),
+                    spacing="0",
+                    align="start",
+                    width="100%",
+                    margin_bottom="20px",
+                ),
+                # Confirm Password field
+                rx.vstack(
+                    rx.text("Confirm Password", font_size="14px", font_weight="500", color="rgba(255, 255, 255, 0.9)", margin_bottom="8px", text_align="left", width="100%"),
+                    rx.input(
+                        placeholder="••••••••",
+                        type="password",
+                        value=State.signup_confirm_password,
+                        on_change=State.set_signup_confirm_password,
+                        width="100%",
+                        padding="14px 16px",
+                        background="rgba(255, 255, 255, 0.05)",
+                        border="1px solid rgba(255, 255, 255, 0.1)",
+                        border_radius="8px",
+                        color="rgba(255, 255, 255, 0.9)",
+                        font_size="15px",
+                        _placeholder={"color": "rgba(255, 255, 255, 0.4)"},
+                        _focus={"border_color": "rgba(100, 180, 255, 0.6)", "background": "rgba(255, 255, 255, 0.08)", "box_shadow": "0 0 0 3px rgba(100, 180, 255, 0.1)", "outline": "none"},
+                        transition="all 0.3s ease",
+                    ),
+                    spacing="0",
+                    align="start",
+                    width="100%",
+                    margin_bottom="24px",
+                ),
+                # Error message
+                rx.cond(
+                    State.signup_error != "",
+                    rx.box(
+                        rx.text(State.signup_error, font_size="13px", color="#ef4444"),
+                        padding="12px",
+                        background="rgba(239, 68, 68, 0.1)",
+                        border="1px solid rgba(239, 68, 68, 0.2)",
+                        border_radius="8px",
+                        width="100%",
+                        margin_bottom="16px",
+                    ),
+                    rx.fragment(),
+                ),
+                # Create Account button
+                rx.button(
+                    "Create Account",
+                    width="100%",
+                    padding="16px",
+                    border_radius="8px",
+                    background="linear-gradient(90deg, #2563EB 0%, #3B82F6 100%)",
+                    color="#FFFFFF",
+                    font_size="16px",
+                    font_weight="600",
+                    border="none",
+                    cursor="pointer",
+                    box_shadow="0 4px 15px rgba(37, 99, 235, 0.4)",
+                    transition="all 0.3s ease",
+                    _hover={"transform": "translateY(-2px)", "box_shadow": "0 6px 20px rgba(37, 99, 235, 0.6)", "filter": "brightness(110%)"},
+                    _active={"transform": "translateY(0)"},
+                    on_click=State.handle_signup,
+                    margin_bottom="24px",
+                ),
+                # Footer
+                rx.hstack(
+                    rx.text("Already have an account?", font_size="14px", color="rgba(255, 255, 255, 0.6)"),
+                    rx.link("Sign in", href="/login", font_size="14px", color="#4A9EFF", _hover={"color": "#6BB3FF"}, text_decoration="none"),
+                    spacing="2",
+                    justify="center",
+                ),
+                spacing="0",
+                width="100%",
+                align="center",
+            ),
+            # Card styling - glassmorphism
+            width=["92%", "90%", "480px", "480px"],
+            max_width="480px",
+            padding=["32px 24px", "40px", "48px 40px", "48px 40px"],
+            background="rgba(10, 20, 40, 0.6)",
+            backdrop_filter="blur(20px)",
+            border="1px solid rgba(70, 130, 255, 0.3)",
+            border_radius="24px",
+            box_shadow="0 8px 32px rgba(0, 100, 255, 0.15), 0 0 80px rgba(0, 150, 255, 0.1)",
+            position="relative",
+            z_index="10",
+        ),
+        # Container
+        width="100%",
+        min_height="100vh",
+        display="flex",
+        align_items="center",
+        justify_content="center",
+        position="relative",
+        overflow="hidden",
+        font_family="'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
     )
 
 
@@ -7391,7 +8262,7 @@ def index() -> rx.Component:
     return rx.box(
         # Background watermark - COT PULSE logo (full-page, more visible)
         rx.box(
-            background_image="url('/pulse (2).png')",
+            background_image="url('/pulse (3).png')",
             background_size="contain",
             background_repeat="no-repeat",
             background_position="center",
@@ -7430,6 +8301,8 @@ def index() -> rx.Component:
         percentile_rank_modal(),
         upgrade_modal(),
         search_modal(),
+        login_modal(),
+        signup_modal(),
         background=rx.cond(
             State.is_dark_mode,
             "#0B0F17",  # Institutional deep background
@@ -7557,3 +8430,4 @@ app = rx.App(
 
 app.add_page(index, route="/", title="COT Pulse | Commitment of Traders Dashboard")
 app.add_page(login_page, route="/login", title="Login | COT Pulse")
+app.add_page(signup_page, route="/signup", title="Sign Up | COT Pulse")
