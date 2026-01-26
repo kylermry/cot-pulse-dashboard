@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - COT Pulse</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0B0F17;
+            --bg-secondary: #0F1420;
+            --bg-tertiary: #131A2A;
+            --bg-elevated: #1a2035;
+
+            --text-primary: #E6E9F0;
+            --text-secondary: #9AA3B2;
+            --text-tertiary: #6B7280;
+
+            --accent-primary: #3b82f6;
+            --accent-secondary: #06b6d4;
+            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            --accent-hover: #2563eb;
+            --accent-light: rgba(59, 130, 246, 0.15);
+            --accent-glow: rgba(59, 130, 246, 0.4);
+
+            --border-subtle: rgba(148, 163, 184, 0.08);
+            --border-medium: rgba(148, 163, 184, 0.15);
+
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Header */
+        header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 80px;
+        }
+
+        .logo {
+            height: 100px;
+            width: auto;
+            margin-top: -10px;
+            margin-bottom: -10px;
+        }
+
+        nav {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.875rem;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+            font-weight: 500;
+            padding: 8px 0;
+        }
+
+        nav a:hover {
+            color: var(--text-primary);
+        }
+
+        nav a.active {
+            color: var(--accent-primary);
+            border-bottom: 2px solid var(--accent-primary);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .btn-header {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            border: none;
+        }
+
+        .btn-login {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-medium);
+        }
+
+        .btn-login:hover {
+            color: var(--text-primary);
+            border-color: var(--text-secondary);
+        }
+
+        .btn-signup {
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        .btn-signup:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        /* Hero Section */
+        .pricing-hero {
+            text-align: center;
+            margin-bottom: 4rem;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pricing-hero h1 {
+            font-size: 3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .pricing-hero p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Pricing Cards */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 2.5rem;
+            position: relative;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease-out;
+            animation-delay: 0.2s;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+
+        .pricing-card:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-medium);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .pricing-card.featured {
+            border: 2px solid var(--accent-primary);
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            box-shadow: 0 0 40px var(--accent-glow);
+        }
+
+        .pricing-card.featured::before {
+            content: 'RECOMMENDED';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-gradient);
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .plan-description {
+            font-size: 0.9rem;
+            color: var(--text-tertiary);
+            margin-bottom: 2rem;
+            min-height: 44px;
+        }
+
+        .plan-price {
+            display: flex;
+            align-items: baseline;
+            gap: 0.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .price-amount {
+            font-size: 3.5rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .price-currency {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .price-period {
+            font-size: 1rem;
+            color: var(--text-tertiary);
+            margin-left: 0.25rem;
+        }
+
+        .plan-cta {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            margin-bottom: 2rem;
+            font-family: inherit;
+        }
+
+        .plan-cta.primary {
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        .plan-cta.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px var(--accent-glow);
+        }
+
+        .plan-cta.secondary {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-medium);
+            color: var(--text-primary);
+        }
+
+        .plan-cta.secondary:hover {
+            background: var(--bg-elevated);
+            border-color: var(--accent-primary);
+        }
+
+        /* Features List */
+        .features-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .feature-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .feature-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .feature-icon.check {
+            color: var(--success);
+        }
+
+        .feature-icon.coming-soon {
+            color: var(--warning);
+        }
+
+        .feature-icon.disabled {
+            color: var(--text-tertiary);
+            opacity: 0.5;
+        }
+
+        .feature-item.disabled {
+            color: var(--text-tertiary);
+            opacity: 0.7;
+        }
+
+        .coming-soon-badge {
+            display: inline-block;
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+            font-size: 0.65rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            margin-left: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            max-width: 800px;
+            margin: 6rem auto 0;
+            animation: fadeInUp 0.6s ease-out 0.4s;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+
+        .faq-section h2 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 3rem;
+            color: var(--text-primary);
+        }
+
+        .faq-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+
+        .faq-item:hover {
+            border-color: var(--border-medium);
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .faq-answer {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+
+        /* Footer CTA */
+        .footer-cta {
+            text-align: center;
+            margin-top: 5rem;
+            padding: 3rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+        }
+
+        .footer-cta h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-cta p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-cta .btn-signup {
+            display: inline-block;
+            padding: 0.875rem 2rem;
+            font-size: 1rem;
+        }
+
+        /* Back link */
+        .back-link {
+            position: fixed;
+            bottom: 28px;
+            left: 28px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-tertiary);
+            font-size: 14px;
+            text-decoration: none;
+            transition: color 0.2s;
+            z-index: 10;
+        }
+
+        .back-link:hover {
+            color: var(--text-primary);
+        }
+
+        .back-link svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .pricing-hero h1 {
+                font-size: 2rem;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            nav {
+                display: none;
+            }
+
+            .container {
+                padding: 2rem 1rem;
+            }
+
+            .header-content {
+                height: 70px;
+            }
+
+            .logo {
+                height: 80px;
+            }
+
+            .back-link {
+                bottom: 16px;
+                left: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="index.html">
+                <img src="assets/pulse (3).png" alt="COT Pulse" class="logo">
+            </a>
+            <nav>
+                <a href="index.html">Dashboard</a>
+                <a href="pricing.html" class="active">Pricing</a>
+            </nav>
+            <div class="header-actions">
+                <a href="login.html" class="btn-header btn-login">Login</a>
+                <a href="signup.html" class="btn-header btn-signup">Sign Up</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="pricing-hero">
+            <h1>Simple, Transparent Pricing</h1>
+            <p>Start free and upgrade when you're ready. No hidden fees, cancel anytime.</p>
+        </div>
+
+        <div class="pricing-grid">
+            <!-- Free Tier -->
+            <div class="pricing-card">
+                <h3 class="plan-name">Free</h3>
+                <p class="plan-description">Perfect for getting started with COT data analysis</p>
+
+                <div class="plan-price">
+                    <span class="price-currency">$</span>
+                    <span class="price-amount mono">0</span>
+                    <span class="price-period">/month</span>
+                </div>
+
+                <button class="plan-cta secondary" onclick="window.location.href='signup.html'">
+                    Get Started Free
+                </button>
+
+                <ul class="features-list">
+                    <li class="feature-item">
+                        <svg class="feature-icon check" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span>View COT charts for all assets</span>
+                    </li>
+                    <li class="feature-item">
+                        <svg class="feature-icon check" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span>Basic positioning data</span>
+                    </li>
+                    <li class="feature-item">
+                        <svg class="feature-icon check" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span>Historical trend charts</span>
+                    </li>
+                    <li class="feature-item disabled">
+                        <svg class="feature-icon disabled" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        <span>No percentile rankings</span>
+                    </li>
+                    <li class="feature-item disabled">
+                        <svg class="feature-icon disabled" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        <span>No alerts or notifications</span>
+                    </li>
+                    <li class="feature-item disabled">
+                        <svg class="feature-icon disabled" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        <span>No watchlist functionality</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Pro Tier -->
+            <div class="pricing-card featured">
+                <h3 class="plan-name">Pro</h3>
+                <p class="plan-description">For serious traders who need advanced analytics and alerts</p>
+
+                <div class="plan-price">
+                    <span class="price-currency">$</span>
+                    <span class="price-amount mono">10</span>
+                    <span class="price-period">/month</span>
+                </div>
+
+                <button class="plan-cta primary" onclick="window.location.href='signup.html?plan=pro'">
+                    Start 14-Day Free Trial
+                </button>
+
+                <ul class="features-list">
+                    <li class="feature-item">
+                        <svg class="feature-icon check" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span>View charts for all assets</span>
+                    </li>
+                    <li class="feature-item">
+                        <svg class="feature-icon check" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span><strong>Percentile rank analysis</strong></span>
+                    </li>
+                    <li class="feature-item">
+                        <svg class="feature-icon check" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span><strong>Weekly email updates</strong></span>
+                    </li>
+                    <li class="feature-item">
+                        <svg class="feature-icon check" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span><strong>Custom watchlist</strong></span>
+                    </li>
+                    <li class="feature-item">
+                        <svg class="feature-icon coming-soon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>Text/SMS alerts<span class="coming-soon-badge">Coming Soon</span></span>
+                    </li>
+                    <li class="feature-item">
+                        <svg class="feature-icon coming-soon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                        <span>AI-powered insights<span class="coming-soon-badge">Coming Soon</span></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="faq-section">
+            <h2>Frequently Asked Questions</h2>
+
+            <div class="faq-item">
+                <div class="faq-question">Can I switch plans anytime?</div>
+                <div class="faq-answer">Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately, and we'll prorate your billing accordingly.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Is there a free trial for Pro?</div>
+                <div class="faq-answer">Yes, we offer a 14-day free trial for the Pro plan. No credit card required to start. You can cancel anytime during the trial period.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">What payment methods do you accept?</div>
+                <div class="faq-answer">We accept all major credit cards (Visa, Mastercard, American Express) and PayPal. All payments are processed securely through Stripe.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">When will the "Coming Soon" features be available?</div>
+                <div class="faq-answer">Text alerts are scheduled for Q2 2026, and AI insights for Q3 2026. Pro subscribers will get early access to all new features at no additional cost.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Do you offer refunds?</div>
+                <div class="faq-answer">Yes, we offer a 30-day money-back guarantee. If you're not satisfied with the Pro plan, contact us within 30 days of purchase for a full refund.</div>
+            </div>
+        </div>
+
+        <!-- Footer CTA -->
+        <div class="footer-cta">
+            <h3>Ready to level up your trading?</h3>
+            <p>Join thousands of traders using COT Pulse to track institutional positioning.</p>
+            <a href="signup.html" class="btn-header btn-signup">Get Started Now</a>
+        </div>
+    </div>
+
+    <!-- Back link -->
+    <a href="index.html" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Back to Dashboard
+    </a>
+
+    <script>
+        // Smooth scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.faq-item').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'all 0.4s ease';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

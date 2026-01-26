@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COT Pulse - Institutional Positioning Intelligence</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Plotly.js for Charts -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="dark-theme">
+    <!-- Main Container -->
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <img src="assets/pulse (3).png" alt="COT Pulse" class="header-logo">
+                <nav class="main-nav">
+                    <button class="nav-item active" data-nav="dashboard">
+                        <i data-lucide="layout-dashboard"></i>
+                        <span>Dashboard</span>
+                    </button>
+                    <button class="nav-item" data-nav="portfolio">
+                        <i data-lucide="briefcase"></i>
+                        <span>Portfolio</span>
+                        <span class="nav-badge" id="watchlist-count">3</span>
+                    </button>
+                    <button class="nav-item" data-nav="alerts">
+                        <i data-lucide="bell"></i>
+                        <span>Alerts</span>
+                    </button>
+                    <button class="nav-item" data-nav="education">
+                        <i data-lucide="book-open"></i>
+                        <span>Education</span>
+                    </button>
+                    <a href="pricing.html" class="nav-item" data-nav="pricing">
+                        <i data-lucide="credit-card"></i>
+                        <span>Pricing</span>
+                    </a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <button class="search-trigger" id="search-trigger">
+                    <i data-lucide="search"></i>
+                    <span>Search assets...</span>
+                    <kbd>Ctrl+K</kbd>
+                </button>
+                <button class="icon-btn" id="theme-toggle">
+                    <i data-lucide="sun" class="theme-icon-light"></i>
+                    <i data-lucide="moon" class="theme-icon-dark"></i>
+                </button>
+                <button class="icon-btn">
+                    <i data-lucide="settings"></i>
+                </button>
+                <div class="auth-buttons">
+                    <a href="login.html" class="btn btn-ghost">Login</a>
+                    <a href="signup.html" class="btn btn-primary">Sign Up</a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Left Sidebar - Asset Selection -->
+            <aside class="sidebar">
+                <!-- Selected Asset Display -->
+                <div class="selected-asset">
+                    <span class="label">SELECTED ASSET</span>
+                    <div class="asset-info">
+                        <h2 id="selected-asset-name">E-Mini S&P 500</h2>
+                        <span class="symbol-badge" id="selected-asset-symbol">ES</span>
+                    </div>
+                    <span class="category-badge" id="selected-asset-category">Equities</span>
+                </div>
+
+                <!-- Report Type Selector -->
+                <div class="report-selector">
+                    <span class="label">REPORT TYPE</span>
+                    <div class="report-buttons">
+                        <button class="report-btn active" data-report="legacy">Legacy</button>
+                        <button class="report-btn" data-report="disaggregated">Disaggregated</button>
+                        <button class="report-btn" data-report="tff">TFF</button>
+                    </div>
+                </div>
+
+                <!-- Asset Categories -->
+                <div class="asset-categories" id="asset-categories">
+                    <!-- Categories will be populated by JavaScript -->
+                </div>
+
+                <!-- Watchlist -->
+                <div class="watchlist-section">
+                    <div class="watchlist-header">
+                        <i data-lucide="star"></i>
+                        <span>My Watchlist</span>
+                        <span class="watchlist-count" id="watchlist-badge">3</span>
+                    </div>
+                    <div class="watchlist-items" id="watchlist-items">
+                        <!-- Watchlist items populated by JS -->
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Dashboard -->
+            <main class="dashboard">
+                <!-- Sticky Asset Header -->
+                <div class="sticky-header">
+                    <div class="asset-title">
+                        <h1 id="header-asset-name">E-Mini S&P 500</h1>
+                        <span class="symbol" id="header-asset-symbol">ES</span>
+                        <button class="watchlist-toggle" id="watchlist-toggle" title="Add to Watchlist">
+                            <i data-lucide="star"></i>
+                        </button>
+                    </div>
+                    <div class="report-date">
+                        <span class="label">Report Date:</span>
+                        <span id="report-date">Loading...</span>
+                    </div>
+                </div>
+
+                <!-- Positioning Summary Section -->
+                <div class="positioning-section">
+                    <!-- Gauge -->
+                    <div class="gauge-container">
+                        <div class="gauge-header">
+                            <h3>Position Breakdown</h3>
+                            <div class="trader-pills" id="gauge-trader-pills">
+                                <button class="trader-pill active" data-trader="1">NC</button>
+                                <button class="trader-pill" data-trader="2">COMM</button>
+                                <button class="trader-pill" data-trader="3">NR</button>
+                            </div>
+                        </div>
+                        <div class="gauge-wrapper">
+                            <svg class="gauge-svg" viewBox="0 0 200 120">
+                                <!-- Background arc -->
+                                <path class="gauge-bg" d="M 20 100 A 80 80 0 0 1 180 100" />
+                                <!-- Long arc (green) -->
+                                <path class="gauge-long" id="gauge-long-arc" d="M 20 100 A 80 80 0 0 1 100 20" />
+                                <!-- Short arc (red) -->
+                                <path class="gauge-short" id="gauge-short-arc" d="M 100 20 A 80 80 0 0 1 180 100" />
+                            </svg>
+                            <div class="gauge-center">
+                                <span class="gauge-label" id="gauge-label">Net Long</span>
+                                <span class="gauge-value" id="gauge-value">+163,078</span>
+                            </div>
+                        </div>
+                        <div class="gauge-legend">
+                            <div class="legend-item long">
+                                <span class="legend-color"></span>
+                                <span class="legend-label">Long</span>
+                                <span class="legend-value" id="gauge-long-value">487K</span>
+                                <span class="legend-pct" id="gauge-long-pct">60%</span>
+                            </div>
+                            <div class="legend-item short">
+                                <span class="legend-color"></span>
+                                <span class="legend-label">Short</span>
+                                <span class="legend-value" id="gauge-short-value">324K</span>
+                                <span class="legend-pct" id="gauge-short-pct">40%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trader Summary Cards -->
+                    <div class="trader-summary" id="trader-summary">
+                        <!-- Cards populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="chart-section">
+                    <div class="chart-header">
+                        <div class="chart-title">
+                            <h3>Net Positioning History</h3>
+                            <div class="view-toggle">
+                                <button class="view-btn active" data-view="position">Net Position</button>
+                                <button class="view-btn" data-view="percentile">Percentile</button>
+                            </div>
+                        </div>
+                        <div class="chart-controls">
+                            <!-- Legend Toggle Buttons -->
+                            <div class="legend-toggles" id="legend-toggles">
+                                <button class="legend-btn active" data-series="trader1" style="--series-color: #60A5FA">
+                                    <span class="legend-dot"></span>
+                                    <span id="legend-trader1">Non-Commercial</span>
+                                </button>
+                                <button class="legend-btn active" data-series="trader2" style="--series-color: #F87171">
+                                    <span class="legend-dot"></span>
+                                    <span id="legend-trader2">Commercial</span>
+                                </button>
+                                <button class="legend-btn active" data-series="trader3" style="--series-color: #34D399">
+                                    <span class="legend-dot"></span>
+                                    <span id="legend-trader3">Non-Reportable</span>
+                                </button>
+                                <button class="legend-btn active hidden" data-series="trader4" style="--series-color: #A78BFA">
+                                    <span class="legend-dot"></span>
+                                    <span id="legend-trader4">Other Reportable</span>
+                                </button>
+                            </div>
+                            <!-- Chart Type Toggle -->
+                            <div class="chart-type-toggle">
+                                <button class="type-btn active" data-type="line">
+                                    <i data-lucide="trending-up"></i>
+                                </button>
+                                <button class="type-btn" data-type="bar">
+                                    <i data-lucide="bar-chart-2"></i>
+                                </button>
+                            </div>
+                            <!-- Zoom Controls -->
+                            <div class="zoom-controls">
+                                <button class="zoom-btn" data-zoom="1">1Y</button>
+                                <button class="zoom-btn" data-zoom="2">2Y</button>
+                                <button class="zoom-btn" data-zoom="3">3Y</button>
+                                <button class="zoom-btn" data-zoom="5">5Y</button>
+                                <button class="zoom-btn active" data-zoom="0">ALL</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <div id="main-chart" class="chart"></div>
+                        <div class="chart-loading" id="chart-loading">
+                            <div class="spinner"></div>
+                            <span>Loading chart data...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metric Cards Grid -->
+                <div class="metrics-grid" id="metrics-grid">
+                    <!-- Metric cards populated by JS -->
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div class="modal-overlay" id="search-modal">
+        <div class="search-modal">
+            <div class="search-input-wrapper">
+                <i data-lucide="search"></i>
+                <input type="text" id="search-input" placeholder="Search assets by name or symbol..." autofocus>
+                <kbd>ESC</kbd>
+            </div>
+            <div class="search-results" id="search-results">
+                <!-- Search results populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/cot-api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
