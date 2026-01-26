@@ -1,4 +1,0 @@
-reflex>=0.5.0
-plotly>=5.18.0
-pandas>=2.0.0
-sodapy>=2.2.0
