@@ -9,7 +9,7 @@ const bodyParser = require('body-parser');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
-const { initDatabase, testConnection, isInitialized } = require('./db');
+const { initDatabase, testConnection, isInitialized, setupTables } = require('./db');
 
 const app = express();
 
@@ -108,10 +108,10 @@ async function startServer() {
         process.exit(1);
     }
 
-    // Check if database tables exist
+    // Auto-setup database tables if they don't exist
     if (!isInitialized()) {
-        console.error('\n[ERROR] Database tables not found. Run: npm run setup-db\n');
-        process.exit(1);
+        console.log('[Server] Database tables not found, initializing...');
+        setupTables();
     }
 
     app.listen(PORT, () => {

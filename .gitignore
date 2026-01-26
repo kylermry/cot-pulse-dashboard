@@ -64,3 +64,4 @@ node_modules/
 # Database
 *.db
 data/
+cot_dashboard_v5/
