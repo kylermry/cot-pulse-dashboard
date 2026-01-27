@@ -57,13 +57,11 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            min-width: 100%;
-            min-height: 100%;
-            width: auto;
-            height: auto;
+            width: 100%;
+            height: 100%;
             transform: translate(-50%, -50%);
             z-index: -2;
-            object-fit: cover;
+            object-fit: contain;
         }
 
         /* Gradient Overlay */
@@ -104,10 +102,10 @@
 
         /* Logo */
         .logo {
-            width: 280px;
-            max-width: 80vw;
+            width: 180px;
+            max-width: 60vw;
             height: auto;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
             opacity: 0;
             transform: translateY(-20px);
             animation: fadeInDown 1s ease 0.5s forwards;
@@ -281,32 +279,32 @@
         /* Responsive */
         @media (max-width: 768px) {
             .logo {
-                width: 200px;
+                width: 140px;
             }
 
             .tagline {
-                font-size: 0.95rem;
-                margin-bottom: 2.5rem;
+                font-size: 0.9rem;
+                margin-bottom: 2rem;
             }
 
             .enter-button {
-                padding: 0.875rem 2.5rem;
-                font-size: 1rem;
+                padding: 0.75rem 2rem;
+                font-size: 0.95rem;
             }
         }
 
         @media (max-width: 480px) {
             .logo {
-                width: 160px;
+                width: 120px;
             }
 
             .tagline {
-                font-size: 0.85rem;
+                font-size: 0.8rem;
             }
 
             .enter-button {
-                padding: 0.75rem 2rem;
-                font-size: 0.9rem;
+                padding: 0.625rem 1.75rem;
+                font-size: 0.875rem;
             }
         }
 
