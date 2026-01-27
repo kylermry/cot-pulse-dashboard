@@ -720,7 +720,17 @@
         const STRIPE_PUBLISHABLE_KEY = 'pk_test_51OsagQQOdb8uxw13b8gyPFVvV0DCEil0xbD6sJxYiWsgBY7iijtZe9Y37SGFIHkl5hy0ha60f3hyc1DpLrpQ78af00fxzhYEuu';
 
         // Initialize Stripe
-        const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+        let stripe = null;
+        try {
+            if (typeof Stripe !== 'undefined') {
+                stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+                console.log('[Stripe] Initialized successfully');
+            } else {
+                console.error('[Stripe] Stripe.js not loaded');
+            }
+        } catch (error) {
+            console.error('[Stripe] Initialization error:', error);
+        }
 
         // Check if user is logged in
         function isLoggedIn() {
@@ -817,7 +827,7 @@
                 if (data.url) {
                     console.log('[Checkout] Redirecting to Stripe:', data.url);
                     window.location.href = data.url;
-                } else {
+                } else if (stripe) {
                     // Fallback to redirectToCheckout
                     const result = await stripe.redirectToCheckout({
                         sessionId: data.sessionId
@@ -826,6 +836,8 @@
                     if (result.error) {
                         throw new Error(result.error.message);
                     }
+                } else {
+                    throw new Error('Stripe not initialized. Please refresh the page.');
                 }
 
             } catch (error) {
