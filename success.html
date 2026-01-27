@@ -315,10 +315,14 @@
 </head>
 <body>
     <header>
-        <div class="header-content">
+        <div class="header-content" style="justify-content: space-between;">
             <a href="/dashboard">
                 <img src="assets/pulse (3).png" alt="COT Pulse" class="logo">
             </a>
+            <div class="header-actions" style="display: flex; gap: 0.75rem; align-items: center;">
+                <a href="/login" class="btn-header btn-login" style="padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: all 0.2s; text-decoration: none; border: 1px solid rgba(148, 163, 184, 0.15); background: transparent; color: var(--text-secondary);">Login</a>
+                <a href="/signup" class="btn-header btn-signup" style="padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: all 0.2s; text-decoration: none; background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%); color: white;">Sign Up</a>
+            </div>
         </div>
     </header>
 
@@ -453,5 +457,8 @@
             verifySession();
         });
     </script>
+
+    <!-- Shared Navigation -->
+    <script src="js/nav.js"></script>
 </body>
 </html>

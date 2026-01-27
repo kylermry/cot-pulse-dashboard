@@ -28,6 +28,10 @@ app.get('/success', (req, res) => {
     res.sendFile(path.join(__dirname, 'success.html'));
 });
 
+app.get('/settings', (req, res) => {
+    res.sendFile(path.join(__dirname, 'settings.html'));
+});
+
 // Serve index.html for root and any unmatched routes
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));

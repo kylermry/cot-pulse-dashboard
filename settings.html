@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - COT Pulse</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0B0F17;
+            --bg-secondary: #0F1420;
+            --bg-tertiary: #131A2A;
+            --bg-elevated: #1a2035;
+
+            --text-primary: #E6E9F0;
+            --text-secondary: #9AA3B2;
+            --text-tertiary: #6B7280;
+
+            --accent-primary: #3b82f6;
+            --accent-secondary: #06b6d4;
+            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            --accent-hover: #2563eb;
+            --accent-light: rgba(59, 130, 246, 0.15);
+            --accent-glow: rgba(59, 130, 246, 0.4);
+
+            --border-subtle: rgba(148, 163, 184, 0.08);
+            --border-medium: rgba(148, 163, 184, 0.15);
+
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 80px;
+        }
+
+        .logo {
+            height: 100px;
+            width: auto;
+            margin-top: -10px;
+            margin-bottom: -10px;
+        }
+
+        nav {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.875rem;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+            font-weight: 500;
+            padding: 8px 0;
+        }
+
+        nav a:hover {
+            color: var(--text-primary);
+        }
+
+        nav a.active {
+            color: var(--accent-primary);
+            border-bottom: 2px solid var(--accent-primary);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        /* Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: var(--text-secondary);
+        }
+
+        /* Settings Sections */
+        .settings-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        /* Profile Info */
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .avatar-large {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 600;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .profile-details {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-email {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+        }
+
+        /* Info Rows */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .info-row:first-child {
+            padding-top: 0;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .info-value {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Subscription Badge */
+        .subscription-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .subscription-badge.pro {
+            background: var(--accent-light);
+            color: var(--accent-primary);
+        }
+
+        .subscription-badge.free {
+            background: rgba(107, 114, 128, 0.2);
+            color: var(--text-secondary);
+        }
+
+        .subscription-badge svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            border: none;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-medium);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-elevated);
+            border-color: var(--accent-primary);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Not Logged In State */
+        .not-logged-in {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .not-logged-in svg {
+            width: 64px;
+            height: 64px;
+            color: var(--text-tertiary);
+            margin-bottom: 1.5rem;
+        }
+
+        .not-logged-in h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .not-logged-in p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Back link */
+        .back-link {
+            position: fixed;
+            bottom: 28px;
+            left: 28px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-tertiary);
+            font-size: 14px;
+            text-decoration: none;
+            transition: color 0.2s;
+            z-index: 10;
+        }
+
+        .back-link:hover {
+            color: var(--text-primary);
+        }
+
+        .back-link svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Loading Spinner */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border-medium);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav {
+                display: none;
+            }
+
+            .container {
+                padding: 2rem 1rem;
+            }
+
+            .profile-info {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .profile-meta {
+                justify-content: center;
+            }
+
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="/dashboard">
+                <img src="assets/pulse (3).png" alt="COT Pulse" class="logo">
+            </a>
+            <nav>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/pricing">Pricing</a>
+            </nav>
+            <div class="header-actions">
+                <a href="/login" class="btn btn-secondary">Login</a>
+                <a href="/signup" class="btn btn-primary">Sign Up</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Loading State -->
+        <div class="loading" id="loading-state">
+            <div class="spinner"></div>
+        </div>
+
+        <!-- Not Logged In State -->
+        <div class="settings-section not-logged-in" id="not-logged-in" style="display: none;">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+            <h2>Sign in to view settings</h2>
+            <p>You need to be logged in to access your account settings.</p>
+            <a href="/login?redirect=settings" class="btn btn-primary">
+                Sign In
+            </a>
+        </div>
+
+        <!-- Logged In Content -->
+        <div id="logged-in-content" style="display: none;">
+            <div class="page-header">
+                <h1>Account Settings</h1>
+                <p>Manage your account and subscription</p>
+            </div>
+
+            <!-- Profile Section -->
+            <div class="settings-section">
+                <div class="section-header">
+                    <span class="section-title">Profile</span>
+                </div>
+                <div class="profile-info">
+                    <div class="avatar-large" id="user-avatar">U</div>
+                    <div class="profile-details">
+                        <div class="profile-name" id="user-name">User</div>
+                        <div class="profile-email" id="user-email">user@example.com</div>
+                        <div class="profile-meta">
+                            <span>Member since <span id="member-since">-</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subscription Section -->
+            <div class="settings-section">
+                <div class="section-header">
+                    <span class="section-title">Subscription</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Current Plan</span>
+                    <span class="info-value">
+                        <span class="subscription-badge free" id="subscription-badge">
+                            Free
+                        </span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Status</span>
+                    <span class="info-value" id="subscription-status">Active</span>
+                </div>
+                <div class="info-row" id="manage-subscription-row" style="display: none;">
+                    <span class="info-label">Billing</span>
+                    <button class="btn btn-secondary" id="manage-subscription-btn" onclick="openBillingPortal()">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        Manage Subscription
+                    </button>
+                </div>
+                <div class="info-row" id="upgrade-row">
+                    <span class="info-label">Upgrade</span>
+                    <a href="/pricing" class="btn btn-primary">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                        </svg>
+                        Upgrade to Pro
+                    </a>
+                </div>
+            </div>
+
+            <!-- Account Actions -->
+            <div class="settings-section">
+                <div class="section-header">
+                    <span class="section-title">Account</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Sign out of your account</span>
+                    <button class="btn btn-danger" onclick="handleLogout()">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                        </svg>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back link -->
+    <a href="/dashboard" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Back to Dashboard
+    </a>
+
+    <script>
+        // API Configuration
+        const API_URL = 'https://cot-pulse-backend-production.up.railway.app';
+
+        // Check if user is logged in
+        function isLoggedIn() {
+            return !!localStorage.getItem('token');
+        }
+
+        // Get auth token
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        // Get stored user
+        function getStoredUser() {
+            try {
+                return JSON.parse(localStorage.getItem('user') || '{}');
+            } catch {
+                return {};
+            }
+        }
+
+        // Handle logout
+        function handleLogout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/';
+        }
+
+        // Open Stripe billing portal
+        async function openBillingPortal() {
+            const btn = document.getElementById('manage-subscription-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner" style="width: 16px; height: 16px; border-width: 2px;"></div> Loading...';
+
+            try {
+                const response = await fetch(`${API_URL}/api/stripe/create-portal-session`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.url) {
+                    window.location.href = data.url;
+                } else {
+                    throw new Error(data.error || 'Failed to open billing portal');
+                }
+            } catch (error) {
+                console.error('Error opening billing portal:', error);
+                alert('Unable to open billing portal. Please try again.');
+                btn.disabled = false;
+                btn.innerHTML = `
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    Manage Subscription
+                `;
+            }
+        }
+
+        // Fetch fresh user data from API
+        async function fetchUserData() {
+            const token = getToken();
+            if (!token) return null;
+
+            try {
+                const response = await fetch(`${API_URL}/api/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                        return null;
+                    }
+                    throw new Error('Failed to fetch user data');
+                }
+
+                const data = await response.json();
+                if (data.success && data.user) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    return data.user;
+                }
+                return null;
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+                return null;
+            }
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                year: 'numeric'
+            });
+        }
+
+        // Update UI with user data
+        function updateUI(user) {
+            const name = user.name || user.email?.split('@')[0] || 'User';
+            const tier = user.subscriptionTier || 'free';
+            const status = user.subscriptionStatus || 'active';
+
+            // Profile
+            document.getElementById('user-avatar').textContent = name.charAt(0).toUpperCase();
+            document.getElementById('user-name').textContent = name;
+            document.getElementById('user-email').textContent = user.email || '';
+            document.getElementById('member-since').textContent = formatDate(user.createdAt || user.created_at);
+
+            // Subscription
+            const badge = document.getElementById('subscription-badge');
+            if (tier === 'pro') {
+                badge.className = 'subscription-badge pro';
+                badge.innerHTML = `
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                    </svg>
+                    Pro
+                `;
+                document.getElementById('manage-subscription-row').style.display = 'flex';
+                document.getElementById('upgrade-row').style.display = 'none';
+            } else {
+                badge.className = 'subscription-badge free';
+                badge.textContent = 'Free';
+                document.getElementById('manage-subscription-row').style.display = 'none';
+                document.getElementById('upgrade-row').style.display = 'flex';
+            }
+
+            document.getElementById('subscription-status').textContent =
+                status.charAt(0).toUpperCase() + status.slice(1);
+        }
+
+        // Initialize settings page
+        async function initSettings() {
+            const loadingState = document.getElementById('loading-state');
+            const notLoggedIn = document.getElementById('not-logged-in');
+            const loggedInContent = document.getElementById('logged-in-content');
+
+            if (!isLoggedIn()) {
+                loadingState.style.display = 'none';
+                notLoggedIn.style.display = 'block';
+                return;
+            }
+
+            // Try to get fresh data from API
+            let user = await fetchUserData();
+
+            // Fall back to stored data
+            if (!user) {
+                user = getStoredUser();
+            }
+
+            if (!user || !user.email) {
+                // Token is invalid
+                loadingState.style.display = 'none';
+                notLoggedIn.style.display = 'block';
+                return;
+            }
+
+            // Update UI
+            updateUI(user);
+            loadingState.style.display = 'none';
+            loggedInContent.style.display = 'block';
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initSettings);
+    </script>
+
+    <!-- Shared Navigation -->
+    <script src="js/nav.js"></script>
+</body>
+</html>
