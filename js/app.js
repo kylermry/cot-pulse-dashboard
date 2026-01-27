@@ -119,6 +119,13 @@
         elements.searchModal = document.getElementById('search-modal');
         elements.searchInput = document.getElementById('search-input');
         elements.searchResults = document.getElementById('search-results');
+
+        // Percentile trader pills
+        elements.percentileTraderPills = document.getElementById('percentile-trader-pills');
+        elements.pctlTrader1 = document.getElementById('pctl-trader1');
+        elements.pctlTrader2 = document.getElementById('pctl-trader2');
+        elements.pctlTrader3 = document.getElementById('pctl-trader3');
+        elements.pctlTrader4 = document.getElementById('pctl-trader4');
     }
 
     // ========================================================================
@@ -192,6 +199,13 @@
         // Watchlist toggle
         elements.watchlistToggle.addEventListener('click', toggleWatchlist);
 
+        // Percentile trader pills
+        elements.percentileTraderPills.addEventListener('click', (e) => {
+            const pill = e.target.closest('.trader-pill');
+            if (pill && !pill.classList.contains('hidden')) {
+                setPercentileTrader(pill.dataset.trader);
+            }
+        });
     }
 
     function handleKeyboard(e) {
@@ -549,13 +563,53 @@
             btn.classList.toggle('active', btn.dataset.view === view);
         });
 
+        // Show/hide appropriate controls
+        const isPercentile = view === 'percentile';
+        elements.percentileTraderPills.classList.toggle('hidden', !isPercentile);
+        elements.legendToggles.classList.toggle('hidden', isPercentile);
+
         // Recalculate percentile if switching to percentile view
-        if (view === 'percentile') {
+        if (isPercentile) {
+            // Default to trader1 (blue line) when switching to percentile
+            state.percentileTrader = 'trader1';
+            updatePercentileTraderPills();
             calculatePercentileData();
         }
 
         renderChart();
         updateMetricCards(); // Update metrics to show percentile data
+    }
+
+    function setPercentileTrader(trader) {
+        state.percentileTrader = trader;
+        updatePercentileTraderPills();
+        calculatePercentileData();
+        renderChart();
+        updateMetricCards();
+    }
+
+    function updatePercentileTraderPills() {
+        const mapping = COTAPI.getFieldMapping(state.reportType);
+        const hasTrader4 = state.reportType !== 'legacy';
+
+        // Update labels
+        elements.pctlTrader1.textContent = mapping.trader1_name;
+        elements.pctlTrader2.textContent = mapping.trader2_name;
+        elements.pctlTrader3.textContent = mapping.trader3_name;
+        if (elements.pctlTrader4) {
+            elements.pctlTrader4.textContent = mapping.trader4_name || '';
+        }
+
+        // Show/hide trader4 pill
+        const trader4Pill = elements.percentileTraderPills.querySelector('[data-trader="trader4"]');
+        if (trader4Pill) {
+            trader4Pill.classList.toggle('hidden', !hasTrader4);
+        }
+
+        // Update active state
+        elements.percentileTraderPills.querySelectorAll('.trader-pill').forEach(pill => {
+            pill.classList.toggle('active', pill.dataset.trader === state.percentileTrader);
+        });
     }
 
     // ========================================================================
@@ -585,10 +639,14 @@
             state.percentileData.trader4 = COTAPI.calculatePercentileRank(reversedData, mapping.trader4_label, state.percentileLookback);
         }
 
-        // Generate percentile history for the primary trader (trader1)
+        // Get the selected trader's label for percentile history
+        const traderNum = state.percentileTrader.replace('trader', '');
+        const traderLabel = mapping[`trader${traderNum}_label`] || mapping.trader1_label;
+
+        // Generate percentile history for the selected trader
         state.percentileHistory = COTAPI.generatePercentileHistory(
             reversedData,
-            mapping.trader1_label,
+            traderLabel,
             state.percentileLookback,
             Math.min(104, reversedData.length) // 2 years of history points
         );
@@ -768,25 +826,46 @@
         const dates = data.map(d => d.date);
         const percentiles = data.map(d => d.percentile);
 
+        // Get color based on selected trader
+        const traderColors = {
+            trader1: '#60A5FA', // Blue
+            trader2: '#F87171', // Red
+            trader3: '#34D399', // Green
+            trader4: '#A78BFA'  // Purple
+        };
+        const lineColor = traderColors[state.percentileTrader] || '#60A5FA';
+        const fillColor = lineColor.replace(')', ', 0.15)').replace('rgb', 'rgba').replace('#', '');
+
+        // Convert hex to rgba for fill
+        const hexToRgba = (hex, alpha) => {
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        };
+
+        const mapping = COTAPI.getFieldMapping(state.reportType);
+        const traderNum = state.percentileTrader.replace('trader', '');
+        const traderName = mapping[`trader${traderNum}_name`] || 'Trader';
+
         const traces = [];
 
         // Main percentile line
         traces.push({
             x: dates,
             y: percentiles,
-            name: 'Percentile Rank',
+            name: `${traderName} Percentile`,
             type: 'scatter',
             mode: 'lines',
-            line: { color: '#3b82f6', width: 2.5 },
+            line: { color: lineColor, width: 2.5 },
             fill: 'tozeroy',
-            fillcolor: 'rgba(59, 130, 246, 0.15)'
+            fillcolor: hexToRgba(lineColor, 0.15)
         });
 
         // Add current value marker
         if (percentiles.length > 0) {
             const currentPct = percentiles[percentiles.length - 1];
             const currentDate = dates[dates.length - 1];
-            const markerColor = currentPct >= 50 ? '#10b981' : '#ef4444';
 
             traces.push({
                 x: [currentDate],
@@ -796,12 +875,12 @@
                 mode: 'markers+text',
                 marker: {
                     size: 12,
-                    color: markerColor,
+                    color: lineColor,
                     line: { width: 2, color: 'white' }
                 },
                 text: [`${currentPct.toFixed(0)}%`],
                 textposition: 'top center',
-                textfont: { size: 12, color: markerColor }
+                textfont: { size: 12, color: lineColor }
             });
         }
 

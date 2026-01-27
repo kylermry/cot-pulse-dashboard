@@ -44,7 +44,7 @@
                         <i data-lucide="book-open"></i>
                         <span>Education</span>
                     </button>
-                    <a href="pricing.html" class="nav-item" data-nav="pricing">
+                    <a href="/pricing" class="nav-item" data-nav="pricing">
                         <i data-lucide="credit-card"></i>
                         <span>Pricing</span>
                     </a>
@@ -64,8 +64,8 @@
                     <i data-lucide="settings"></i>
                 </button>
                 <div class="auth-buttons">
-                    <a href="login.html" class="btn btn-ghost">Login</a>
-                    <a href="signup.html" class="btn btn-primary">Sign Up</a>
+                    <a href="/login" class="btn btn-ghost">Login</a>
+                    <a href="/signup" class="btn btn-primary">Sign Up</a>
                 </div>
             </div>
         </header>
@@ -188,6 +188,21 @@
                             </div>
                         </div>
                         <div class="chart-controls">
+                            <!-- Percentile Trader Selector (shown only in percentile view) -->
+                            <div class="percentile-trader-pills hidden" id="percentile-trader-pills">
+                                <button class="trader-pill active" data-trader="trader1" style="--pill-color: #60A5FA">
+                                    <span id="pctl-trader1">Non-Commercial</span>
+                                </button>
+                                <button class="trader-pill" data-trader="trader2" style="--pill-color: #F87171">
+                                    <span id="pctl-trader2">Commercial</span>
+                                </button>
+                                <button class="trader-pill" data-trader="trader3" style="--pill-color: #34D399">
+                                    <span id="pctl-trader3">Non-Reportable</span>
+                                </button>
+                                <button class="trader-pill hidden" data-trader="trader4" style="--pill-color: #A78BFA">
+                                    <span id="pctl-trader4">Other Reportable</span>
+                                </button>
+                            </div>
                             <!-- Legend Toggle Buttons -->
                             <div class="legend-toggles" id="legend-toggles">
                                 <button class="legend-btn active" data-series="trader1" style="--series-color: #60A5FA">

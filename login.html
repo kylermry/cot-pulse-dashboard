@@ -388,7 +388,7 @@
     <div class="bg-overlay"></div>
 
     <!-- Back link -->
-    <a href="index.html" class="back-link">
+    <a href="/dashboard" class="back-link">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
@@ -446,7 +446,7 @@
             </div>
 
             <span class="footer">
-                Don't have an account? <a href="signup.html">Sign up</a>
+                Don't have an account? <a href="/signup">Sign up</a>
             </span>
         </section>
     </main>
@@ -492,7 +492,7 @@
 
                     // Redirect to dashboard
                     setTimeout(() => {
-                        window.location.href = 'index.html';
+                        window.location.href = '/dashboard';
                     }, 600);
                 } else {
                     throw new Error(data.error || 'Login failed');

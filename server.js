@@ -7,6 +7,23 @@ const PORT = process.env.PORT || 3000;
 // Serve static files from current directory
 app.use(express.static(__dirname));
 
+// Clean URL routes
+app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/pricing', (req, res) => {
+    res.sendFile(path.join(__dirname, 'pricing.html'));
+});
+
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'login.html'));
+});
+
+app.get('/signup', (req, res) => {
+    res.sendFile(path.join(__dirname, 'signup.html'));
+});
+
 // Serve index.html for root and any unmatched routes
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));

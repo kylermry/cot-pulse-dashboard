@@ -1145,6 +1145,46 @@ input {
     display: none;
 }
 
+.legend-toggles.hidden {
+    display: none;
+}
+
+/* Percentile Trader Pills */
+.percentile-trader-pills {
+    display: flex;
+    gap: 6px;
+}
+
+.percentile-trader-pills.hidden {
+    display: none;
+}
+
+.percentile-trader-pills .trader-pill {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.percentile-trader-pills .trader-pill:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.percentile-trader-pills .trader-pill.active {
+    color: var(--pill-color, var(--accent-blue));
+    background: color-mix(in srgb, var(--pill-color, var(--accent-blue)) 15%, transparent);
+    border-color: color-mix(in srgb, var(--pill-color, var(--accent-blue)) 30%, transparent);
+}
+
+.percentile-trader-pills .trader-pill.hidden {
+    display: none;
+}
+
 .chart-type-toggle {
     display: flex;
     gap: 4px;
