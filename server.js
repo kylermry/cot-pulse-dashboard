@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3000;
 // Serve static files from current directory
 app.use(express.static(__dirname));
 
-// Landing page (entry point)
+// Root serves the entry page
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'landing.html'));
 });

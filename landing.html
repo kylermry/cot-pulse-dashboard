@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COT Pulse - Institutional Positioning Intelligence</title>
-
+    <title>COT Pulse | Institutional Positioning Intelligence</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -16,117 +14,365 @@
             box-sizing: border-box;
         }
 
-        :root {
-            --bg-primary: #0B0F17;
-            --text-primary: #E6E9F0;
-            --text-secondary: #9AA3B2;
-            --accent-primary: #3b82f6;
-            --accent-secondary: #06b6d4;
-            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
-            --accent-glow: rgba(59, 130, 246, 0.5);
-            --glass-bg: rgba(15, 20, 32, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.1);
-        }
-
-        html, body {
-            height: 100%;
-            overflow: hidden;
-        }
-
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            transition: opacity 0.5s ease;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            background: #020617;
+            color: #ffffff;
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* Landing Container */
-        .landing-container {
+        /* Animated Background */
+        .background {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            z-index: 0;
+            overflow: hidden;
         }
 
-        /* Video Background */
-        .background-video {
+        /* Grid Pattern */
+        .grid-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(6, 182, 212, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.5;
+        }
+
+        /* Market Curves SVG */
+        .market-curves {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            opacity: 0.15;
+        }
+
+        .curve-line {
+            fill: none;
+            stroke: url(#curveGradient);
+            stroke-width: 2;
+            stroke-linecap: round;
+        }
+
+        .curve-line-1 {
+            stroke-dasharray: 2000;
+            stroke-dashoffset: 2000;
+            animation: drawCurve 4s ease-out forwards;
+        }
+
+        .curve-line-2 {
+            stroke-dasharray: 2000;
+            stroke-dashoffset: 2000;
+            animation: drawCurve 4s ease-out 0.5s forwards;
+            opacity: 0.6;
+        }
+
+        .curve-line-3 {
+            stroke-dasharray: 2000;
+            stroke-dashoffset: 2000;
+            animation: drawCurve 4s ease-out 1s forwards;
+            opacity: 0.3;
+        }
+
+        @keyframes drawCurve {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        /* Heartbeat Line */
+        .heartbeat-container {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            transform: translateY(-50%);
+            opacity: 0.08;
+            overflow: hidden;
+        }
+
+        .heartbeat-line {
+            position: absolute;
+            top: 50%;
+            left: -100%;
+            width: 200%;
+            height: 2px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                transparent 40%,
+                #06b6d4 45%,
+                #06b6d4 46%,
+                transparent 46.5%,
+                transparent 47%,
+                #06b6d4 47.5%,
+                #06b6d4 50%,
+                transparent 50.5%,
+                transparent 52%,
+                #06b6d4 52.5%,
+                #06b6d4 53%,
+                transparent 53.5%,
+                transparent 100%
+            );
+            animation: heartbeatMove 4s linear infinite;
+        }
+
+        @keyframes heartbeatMove {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(50%);
+            }
+        }
+
+        /* Data Particles */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: #06b6d4;
+            border-radius: 50%;
+            opacity: 0;
+            animation: particleFloat 8s ease-in-out infinite;
+        }
+
+        @keyframes particleFloat {
+            0%, 100% {
+                opacity: 0;
+                transform: translateY(100vh) scale(0);
+            }
+            10% {
+                opacity: 0.6;
+                transform: translateY(80vh) scale(1);
+            }
+            90% {
+                opacity: 0.6;
+                transform: translateY(20vh) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(0) scale(0);
+            }
+        }
+
+        /* Radial Gradient Overlay */
+        .radial-overlay {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 100%;
-            height: 100%;
             transform: translate(-50%, -50%);
-            z-index: -2;
-            object-fit: contain;
-        }
-
-        /* Gradient Overlay */
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background:
-                radial-gradient(ellipse at center, transparent 0%, var(--bg-primary) 70%),
-                linear-gradient(180deg, rgba(11, 15, 23, 0.3) 0%, rgba(11, 15, 23, 0.6) 50%, rgba(11, 15, 23, 0.9) 100%);
-        }
-
-        /* Vignette Effect */
-        .vignette {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            box-shadow: inset 0 0 200px 60px var(--bg-primary);
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(ellipse at center,
+                rgba(6, 182, 212, 0.08) 0%,
+                transparent 50%);
             pointer-events: none;
         }
 
-        /* Content */
+        /* Main Content */
         .content {
+            position: relative;
+            z-index: 10;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             text-align: center;
-            z-index: 1;
-            padding: 2rem;
+            padding: 40px;
         }
 
-        /* Logo */
-        .logo {
-            width: 180px;
-            max-width: 60vw;
-            height: auto;
-            margin-bottom: 0.75rem;
-            opacity: 0;
-            transform: translateY(-20px);
-            animation: fadeInDown 1s ease 0.5s forwards;
+        /* Logo Container */
+        .logo-container {
+            position: relative;
+            margin-bottom: 32px;
         }
 
-        @keyframes fadeInDown {
-            to {
+        /* Cyan Glow behind logo */
+        .logo-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 280px;
+            height: 280px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, transparent 70%);
+            filter: blur(40px);
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% {
+                opacity: 0.6;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            50% {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+        }
+
+        /* Logo Image */
+        .logo-img {
+            position: relative;
+            width: 220px;
+            height: auto;
+            z-index: 1;
+            opacity: 0;
+            filter: drop-shadow(0 0 30px rgba(6, 182, 212, 0.4));
+            animation: logoFadeIn 1.2s ease-out 0.3s forwards;
+        }
+
+        @keyframes logoFadeIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
             }
         }
 
         /* Tagline */
         .tagline {
-            font-size: 1.125rem;
-            color: var(--text-secondary);
-            margin-bottom: 3rem;
+            font-size: 15px;
+            font-weight: 400;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 48px;
             opacity: 0;
-            animation: fadeIn 1s ease 1s forwards;
-            letter-spacing: 0.05em;
-            font-weight: 300;
+            animation: fadeInUp 0.8s ease-out 1.2s forwards;
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Enter Button */
+        .enter-btn {
+            position: relative;
+            padding: 18px 56px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #ffffff;
+            text-decoration: none;
+            background: linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #22d3ee 100%);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out 1.4s forwards;
+            transition: all 0.3s ease;
+            box-shadow:
+                0 4px 20px rgba(6, 182, 212, 0.3),
+                0 0 0 1px rgba(6, 182, 212, 0.1);
+        }
+
+        .enter-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent);
+            transition: left 0.5s ease;
+        }
+
+        .enter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 8px 30px rgba(6, 182, 212, 0.4),
+                0 0 0 1px rgba(6, 182, 212, 0.2),
+                0 0 60px rgba(6, 182, 212, 0.2);
+        }
+
+        .enter-btn:hover::before {
+            left: 100%;
+        }
+
+        .enter-btn:active {
+            transform: translateY(0) scale(0.98);
+            box-shadow:
+                0 2px 10px rgba(6, 182, 212, 0.3),
+                0 0 0 1px rgba(6, 182, 212, 0.1);
+        }
+
+        /* Subtle bottom accent */
+        .bottom-accent {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 2s forwards;
+        }
+
+        .accent-dot {
+            width: 6px;
+            height: 6px;
+            background: #06b6d4;
+            border-radius: 50%;
+            animation: dotPulse 2s ease-in-out infinite;
+        }
+
+        .accent-text {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #475569;
+        }
+
+        @keyframes dotPulse {
+            0%, 100% {
+                opacity: 0.4;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
         }
 
         @keyframes fadeIn {
@@ -135,310 +381,93 @@
             }
         }
 
-        /* Enter Button */
-        .enter-button {
-            position: relative;
-            padding: 1rem 3rem;
-            font-size: 1.125rem;
-            font-weight: 600;
-            font-family: inherit;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--text-primary);
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            cursor: pointer;
-            overflow: hidden;
-            opacity: 0;
-            transform: scale(0.95);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-
-        .enter-button.visible {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        /* Button Glow Effect */
-        .enter-button::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: var(--accent-gradient);
-            border-radius: 14px;
-            z-index: -1;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .enter-button::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--glass-bg);
-            border-radius: 11px;
-            z-index: -1;
-        }
-
-        .enter-button:hover {
-            transform: scale(1.05);
-            border-color: var(--accent-primary);
-            box-shadow:
-                0 0 30px var(--accent-glow),
-                0 0 60px rgba(6, 182, 212, 0.3);
-        }
-
-        .enter-button:hover::before {
-            opacity: 1;
-        }
-
-        .enter-button:active {
-            transform: scale(0.98);
-        }
-
-        /* Pulse Animation for Button */
-        .enter-button.visible {
-            animation: pulse 2s ease-in-out infinite 3.5s;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
-            }
-            50% {
-                box-shadow: 0 0 20px 5px rgba(59, 130, 246, 0.3);
-            }
-        }
-
-        .enter-button:hover {
-            animation: none;
-        }
-
-        /* Subtle Particles Effect */
-        .particles {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-            overflow: hidden;
-        }
-
-        .particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: var(--accent-primary);
-            border-radius: 50%;
-            opacity: 0;
-            animation: float 8s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% {
-                opacity: 0;
-                transform: translateY(100vh) scale(0);
-            }
-            10% {
-                opacity: 0.6;
-            }
-            90% {
-                opacity: 0.6;
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-100vh) scale(1);
-            }
-        }
-
-        /* Loading fallback */
-        .video-fallback {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -3;
-            background:
-                radial-gradient(ellipse at 30% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at 70% 80%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
-                var(--bg-primary);
-        }
-
         /* Responsive */
         @media (max-width: 768px) {
-            .logo {
-                width: 140px;
+            .logo-img {
+                width: 160px;
+            }
+
+            .logo-glow {
+                width: 200px;
+                height: 200px;
             }
 
             .tagline {
-                font-size: 0.9rem;
-                margin-bottom: 2rem;
+                font-size: 12px;
+                letter-spacing: 2px;
+                margin-bottom: 40px;
             }
 
-            .enter-button {
-                padding: 0.75rem 2rem;
-                font-size: 0.95rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .logo {
-                width: 120px;
-            }
-
-            .tagline {
-                font-size: 0.8rem;
-            }
-
-            .enter-button {
-                padding: 0.625rem 1.75rem;
-                font-size: 0.875rem;
-            }
-        }
-
-        /* Prefers reduced motion */
-        @media (prefers-reduced-motion: reduce) {
-            .enter-button,
-            .logo,
-            .tagline {
-                animation: none;
-                opacity: 1;
-                transform: none;
-            }
-
-            .enter-button.visible {
-                animation: none;
-            }
-
-            .particle {
-                display: none;
+            .enter-btn {
+                padding: 16px 44px;
+                font-size: 12px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="landing-container">
-        <!-- Fallback Background -->
-        <div class="video-fallback"></div>
+    <!-- Animated Background -->
+    <div class="background">
+        <!-- Grid Pattern -->
+        <div class="grid-pattern"></div>
 
-        <!-- Video Background -->
-        <video
-            autoplay
-            muted
-            loop
-            playsinline
-            class="background-video"
-            id="bg-video"
-            poster="./assets/pulse (3).png"
-        >
-            <source src="./assets/pulsevideo.mp4" type="video/mp4">
-        </video>
+        <!-- Market Curves -->
+        <svg class="market-curves" viewBox="0 0 1440 600" preserveAspectRatio="none">
+            <defs>
+                <linearGradient id="curveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#06b6d4" stop-opacity="0" />
+                    <stop offset="50%" stop-color="#06b6d4" stop-opacity="1" />
+                    <stop offset="100%" stop-color="#06b6d4" stop-opacity="0" />
+                </linearGradient>
+            </defs>
+            <path class="curve-line curve-line-1" d="M0,400 Q200,350 400,380 T800,320 T1200,360 T1440,300" />
+            <path class="curve-line curve-line-2" d="M0,450 Q300,400 500,420 T900,380 T1200,400 T1440,350" />
+            <path class="curve-line curve-line-3" d="M0,500 Q250,480 450,490 T850,450 T1150,470 T1440,420" />
+        </svg>
 
-        <!-- Overlay -->
-        <div class="overlay"></div>
-        <div class="vignette"></div>
+        <!-- Heartbeat Line -->
+        <div class="heartbeat-container">
+            <div class="heartbeat-line"></div>
+        </div>
 
-        <!-- Particles -->
+        <!-- Data Particles -->
         <div class="particles" id="particles"></div>
 
-        <!-- Content -->
-        <div class="content">
-            <img src="./assets/pulse (3).png" alt="COT Pulse" class="logo">
-            <p class="tagline">Institutional Positioning Intelligence</p>
-            <button id="enter-btn" class="enter-button">
-                Enter
-            </button>
+        <!-- Radial Overlay -->
+        <div class="radial-overlay"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="logo-container">
+            <div class="logo-glow"></div>
+            <img src="assets/pulse (3).png" alt="COT Pulse" class="logo-img">
         </div>
+
+        <p class="tagline">Institutional Positioning Intelligence</p>
+
+        <a href="/dashboard" class="enter-btn">Enter Platform</a>
+    </div>
+
+    <!-- Bottom Accent -->
+    <div class="bottom-accent">
+        <div class="accent-dot"></div>
+        <span class="accent-text">Live Data Connected</span>
     </div>
 
     <script>
-        // Create floating particles
-        function createParticles() {
-            const container = document.getElementById('particles');
-            const particleCount = 20;
+        // Generate subtle data particles
+        const particlesContainer = document.getElementById('particles');
+        const particleCount = 20;
 
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 8 + 's';
-                particle.style.animationDuration = (Math.random() * 4 + 6) + 's';
-
-                // Random colors between accent colors
-                const colors = ['#3b82f6', '#06b6d4', '#60a5fa', '#22d3ee'];
-                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
-                particle.style.width = (Math.random() * 3 + 1) + 'px';
-                particle.style.height = particle.style.width;
-
-                container.appendChild(particle);
-            }
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 8 + 's';
+            particle.style.animationDuration = (6 + Math.random() * 4) + 's';
+            particlesContainer.appendChild(particle);
         }
-
-        // Fade in button after 3 seconds
-        function showEnterButton() {
-            const btn = document.getElementById('enter-btn');
-            btn.classList.add('visible');
-        }
-
-        // Handle enter button click
-        function handleEnter() {
-            // Fade out the page
-            document.body.style.opacity = '0';
-
-            // Redirect after fade animation
-            setTimeout(() => {
-                window.location.href = '/dashboard';
-            }, 500);
-        }
-
-        // Ensure video plays on mobile
-        function initVideo() {
-            const video = document.getElementById('bg-video');
-
-            // Try to play video
-            const playPromise = video.play();
-
-            if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    // Autoplay was prevented, video will show poster
-                    console.log('Video autoplay prevented:', error);
-                });
-            }
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            createParticles();
-            initVideo();
-
-            // Show enter button after 3 seconds
-            setTimeout(showEnterButton, 3000);
-
-            // Attach click handler
-            document.getElementById('enter-btn').addEventListener('click', handleEnter);
-
-            // Also allow Enter key to proceed
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    const btn = document.getElementById('enter-btn');
-                    if (btn.classList.contains('visible')) {
-                        handleEnter();
-                    }
-                }
-            });
-        });
     </script>
 </body>
 </html>
