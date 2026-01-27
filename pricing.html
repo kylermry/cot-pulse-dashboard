@@ -467,6 +467,29 @@
         }
 
         /* Responsive */
+        /* Spinner animation */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        #checkout-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        #btn-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         @media (max-width: 768px) {
             .pricing-hero h1 {
                 font-size: 2rem;
@@ -589,9 +612,17 @@
                     <span class="price-period">/month</span>
                 </div>
 
-                <button class="plan-cta primary" onclick="window.location.href='/signup?plan=pro'">
-                    Start 14-Day Free Trial
+                <button class="plan-cta primary" id="checkout-btn" onclick="handleProCheckout()">
+                    <span id="btn-text">Upgrade to Pro</span>
+                    <span id="btn-loading" style="display: none;">
+                        <svg class="spinner" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" stroke-opacity="0.25"/>
+                            <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/>
+                        </svg>
+                        Processing...
+                    </span>
                 </button>
+                <div id="checkout-error" style="display: none; color: #f87171; font-size: 0.85rem; margin-top: -1rem; margin-bottom: 1rem; text-align: center;"></div>
 
                 <ul class="features-list">
                     <li class="feature-item">
@@ -680,7 +711,118 @@
         Back to Dashboard
     </a>
 
+    <!-- Stripe.js -->
+    <script src="https://js.stripe.com/v3/"></script>
+
     <script>
+        // API and Stripe configuration
+        const API_URL = 'https://cot-pulse-backend-production.up.railway.app';
+        const STRIPE_PUBLISHABLE_KEY = 'pk_test_51OsagQQOdb8uxw13b8gyPFVvV0DCEil0xbD6sJxYiWsgBY7iijtZe9Y37SGFIHkl5hy0ha60f3hyc1DpLrpQ78af00fxzhYEuu';
+
+        // Initialize Stripe
+        const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+
+        // Check if user is logged in
+        function isLoggedIn() {
+            return !!localStorage.getItem('token');
+        }
+
+        // Get auth token
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        // Update button text based on login state
+        function updateCheckoutButton() {
+            const btnText = document.getElementById('btn-text');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+            if (isLoggedIn()) {
+                if (user.subscriptionTier === 'pro') {
+                    btnText.textContent = 'Already Pro';
+                    document.getElementById('checkout-btn').disabled = true;
+                } else {
+                    btnText.textContent = 'Upgrade to Pro';
+                }
+            } else {
+                btnText.textContent = 'Sign Up for Pro';
+            }
+        }
+
+        // Handle Pro checkout
+        async function handleProCheckout() {
+            const btn = document.getElementById('checkout-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnLoading = document.getElementById('btn-loading');
+            const errorDiv = document.getElementById('checkout-error');
+
+            // Hide any previous errors
+            errorDiv.style.display = 'none';
+
+            // Check if user is logged in
+            if (!isLoggedIn()) {
+                // Redirect to signup with plan parameter
+                window.location.href = '/signup?plan=pro';
+                return;
+            }
+
+            // Show loading state
+            btn.disabled = true;
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'flex';
+
+            try {
+                // Create checkout session
+                const response = await fetch(`${API_URL}/api/stripe/create-checkout-session`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to create checkout session');
+                }
+
+                // Redirect to Stripe Checkout
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    // Fallback to redirectToCheckout
+                    const result = await stripe.redirectToCheckout({
+                        sessionId: data.sessionId
+                    });
+
+                    if (result.error) {
+                        throw new Error(result.error.message);
+                    }
+                }
+
+            } catch (error) {
+                console.error('Checkout error:', error);
+
+                // Handle token expiration
+                if (error.message.includes('token') || error.message.includes('401')) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = '/login?redirect=pricing';
+                    return;
+                }
+
+                // Show error message
+                errorDiv.textContent = error.message || 'Something went wrong. Please try again.';
+                errorDiv.style.display = 'block';
+
+                // Reset button state
+                btn.disabled = false;
+                btnText.style.display = 'inline';
+                btnLoading.style.display = 'none';
+            }
+        }
+
         // Smooth scroll animations
         const observerOptions = {
             threshold: 0.1,
@@ -702,6 +844,9 @@
             el.style.transition = 'all 0.4s ease';
             observer.observe(el);
         });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', updateCheckoutButton);
     </script>
 </body>
 </html>
