@@ -760,9 +760,12 @@
             errorDiv.style.display = 'none';
 
             // Check if user is logged in
-            if (!isLoggedIn()) {
-                // Redirect to signup with plan parameter
-                window.location.href = '/signup?plan=pro';
+            const token = getToken();
+            console.log('[Checkout] Token exists:', !!token);
+
+            if (!token) {
+                console.log('[Checkout] No token, redirecting to login');
+                window.location.href = '/login?redirect=pricing';
                 return;
             }
 
@@ -772,16 +775,39 @@
             btnLoading.style.display = 'flex';
 
             try {
+                console.log('[Checkout] Creating checkout session...');
+
                 // Create checkout session
                 const response = await fetch(`${API_URL}/api/stripe/create-checkout-session`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${getToken()}`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
 
+                console.log('[Checkout] Response status:', response.status);
+
                 const data = await response.json();
+                console.log('[Checkout] Response data:', data);
+
+                // Handle authentication errors
+                if (response.status === 401 || response.status === 403) {
+                    console.log('[Checkout] Auth error, clearing token and redirecting');
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = '/login?redirect=pricing&reason=session_expired';
+                    return;
+                }
+
+                // Handle user not found (likely stale token after db reset)
+                if (data.error === 'User not found') {
+                    console.log('[Checkout] User not found, clearing token and redirecting');
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = '/login?redirect=pricing&reason=account_not_found';
+                    return;
+                }
 
                 if (!data.success) {
                     throw new Error(data.error || 'Failed to create checkout session');
@@ -789,6 +815,7 @@
 
                 // Redirect to Stripe Checkout
                 if (data.url) {
+                    console.log('[Checkout] Redirecting to Stripe:', data.url);
                     window.location.href = data.url;
                 } else {
                     // Fallback to redirectToCheckout
@@ -802,18 +829,25 @@
                 }
 
             } catch (error) {
-                console.error('Checkout error:', error);
+                console.error('[Checkout] Error:', error);
 
-                // Handle token expiration
-                if (error.message.includes('token') || error.message.includes('401')) {
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('user');
-                    window.location.href = '/login?redirect=pricing';
-                    return;
+                // Show user-friendly error message
+                let errorMessage = 'Something went wrong. Please try again.';
+
+                if (error.message.includes('token') || error.message.includes('expired')) {
+                    errorMessage = 'Your session has expired. Please log in again.';
+                    setTimeout(() => {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                        window.location.href = '/login?redirect=pricing';
+                    }, 2000);
+                } else if (error.message.includes('User not found')) {
+                    errorMessage = 'Account not found. Please log in again.';
+                } else if (error.message) {
+                    errorMessage = error.message;
                 }
 
-                // Show error message
-                errorDiv.textContent = error.message || 'Something went wrong. Please try again.';
+                errorDiv.textContent = errorMessage;
                 errorDiv.style.display = 'block';
 
                 // Reset button state
