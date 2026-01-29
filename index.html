@@ -16,6 +16,9 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 
+    <!-- html2canvas for chart screenshots -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <!-- Custom Styles -->
     <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -132,9 +135,16 @@
                 <!-- Positioning Summary Section -->
                 <div class="positioning-section">
                     <!-- Gauge -->
-                    <div class="gauge-container">
+                    <div class="gauge-container" id="gauge-section">
                         <div class="gauge-header">
                             <h3>Position Breakdown</h3>
+                            <button class="download-chart-btn download-chart-btn-sm" onclick="downloadSection('gauge-section', 'position-breakdown')" title="Download Chart">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7 10 12 15 17 10"/>
+                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                            </button>
                             <div class="trader-pills" id="gauge-trader-pills">
                                 <button class="trader-pill active" data-trader="1">NC</button>
                                 <button class="trader-pill" data-trader="2">COMM</button>
@@ -182,6 +192,14 @@
                     <div class="chart-header">
                         <div class="chart-title">
                             <h3>Net Positioning History</h3>
+                            <button class="download-chart-btn" onclick="downloadPlotlyChart('main-chart', 'net-positioning')" title="Download Chart">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7 10 12 15 17 10"/>
+                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                                <span>Download</span>
+                            </button>
                             <div class="view-toggle">
                                 <button class="view-btn active" data-view="position">Net Position</button>
                                 <button class="view-btn" data-view="percentile">Percentile</button>
@@ -251,8 +269,20 @@
                 </div>
 
                 <!-- Metric Cards Grid -->
-                <div class="metrics-grid" id="metrics-grid">
-                    <!-- Metric cards populated by JS -->
+                <div class="metrics-section">
+                    <div class="metrics-header">
+                        <h3>Key Metrics</h3>
+                        <button class="download-chart-btn download-chart-btn-sm" onclick="downloadSection('metrics-grid', 'key-metrics')" title="Download Metrics">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="metrics-grid" id="metrics-grid">
+                        <!-- Metric cards populated by JS -->
+                    </div>
                 </div>
             </main>
         </div>
@@ -273,6 +303,7 @@
     </div>
 
     <!-- Scripts -->
+    <script src="js/chart-download.js"></script>
     <script src="js/nav.js"></script>
     <script src="js/cot-api.js"></script>
     <script src="js/app.js"></script>

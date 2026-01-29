@@ -1754,3 +1754,105 @@ input {
         font-size: 20px;
     }
 }
+
+/* ============================================================================
+   DOWNLOAD CHART BUTTONS
+   ============================================================================ */
+
+.download-chart-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    white-space: nowrap;
+}
+
+.download-chart-btn:hover {
+    background: rgba(6, 182, 212, 0.1);
+    border-color: rgba(6, 182, 212, 0.3);
+    color: #00D9FF;
+    box-shadow: 0 0 16px rgba(6, 182, 212, 0.15);
+}
+
+.download-chart-btn:active {
+    transform: scale(0.95);
+}
+
+.download-chart-btn svg {
+    flex-shrink: 0;
+}
+
+/* Small variant (icon only) */
+.download-chart-btn-sm {
+    padding: 6px 8px;
+}
+
+.download-chart-btn-sm span {
+    display: none;
+}
+
+/* Metrics section header */
+.metrics-section {
+    width: 100%;
+}
+
+.metrics-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.metrics-header h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Tooltip */
+.download-chart-btn[title] {
+    position: relative;
+}
+
+/* Downloading state */
+.download-chart-btn.downloading {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.download-chart-btn.downloading svg {
+    animation: spin-download 1s linear infinite;
+}
+
+@keyframes spin-download {
+    to { transform: rotate(360deg); }
+}
+
+/* Success flash */
+.download-chart-btn.download-success {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: #34D399;
+}
+
+/* Light theme overrides */
+.light-theme .download-chart-btn {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: #6B7280;
+}
+
+.light-theme .download-chart-btn:hover {
+    background: rgba(6, 182, 212, 0.08);
+    border-color: rgba(6, 182, 212, 0.3);
+    color: #0891b2;
+}
